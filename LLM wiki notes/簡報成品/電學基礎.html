@@ -1,0 +1,2704 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>電學基礎 — 簡報投影片</title>
+  <style>
+    :root {
+      --bg-stage: #0f172a;
+      --slide-bg: #ffffff;
+      --slide-bg-soft: #f8fafc;
+      --ink-primary: #0f172a;
+      --ink-secondary: #475569;
+      --ink-muted: #64748b;
+      --border: #e2e8f0;
+      --blue: #2563eb;
+      --blue-soft: #eff6ff;
+      --blue-border: #bfdbfe;
+      --amber: #d97706;
+      --amber-soft: #fffbeb;
+      --amber-border: #fde68a;
+      --emerald: #059669;
+      --emerald-soft: #ecfdf5;
+      --emerald-border: #a7f3d0;
+      --rose: #e11d48;
+      --rose-soft: #fff1f2;
+      --rose-border: #fecdd3;
+      --indigo: #4f46e5;
+      --indigo-soft: #eef2ff;
+      --indigo-border: #c7d2fe;
+      --shadow-slide: 0 25px 60px -15px rgba(2, 6, 23, 0.55);
+      --font-sans: "Noto Sans TC", "Microsoft JhengHei", "PingFang TC", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: radial-gradient(circle at top, #1e293b 0%, #0f172a 70%);
+      font-family: var(--font-sans);
+      color: var(--ink-primary);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Presenter Viewport */
+    .viewport {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 18px 24px 68px;
+      position: relative;
+    }
+
+    .stage-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Fixed 1280x720 Logical Deck Scaled Smoothly */
+    .deck {
+      width: 1280px;
+      height: 720px;
+      position: relative;
+      transform-origin: center center;
+      box-shadow: var(--shadow-slide);
+      border-radius: 18px;
+      overflow: hidden;
+      background: var(--slide-bg);
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      width: 1280px;
+      height: 720px;
+      padding: 46px 60px 50px;
+      display: flex;
+      flex-direction: column;
+      background: var(--slide-bg);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(28px);
+      transition: opacity 0.35s ease, transform 0.35s ease;
+    }
+
+    .slide.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(0);
+      z-index: 2;
+    }
+
+    .slide.prev {
+      opacity: 0;
+      transform: translateX(-28px);
+    }
+
+    /* Cover & Section Divider Slides */
+    .slide-cover {
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 58%, #0369a1 100%);
+      color: #ffffff;
+      padding: 64px 74px;
+      justify-content: space-between;
+      overflow: hidden;
+    }
+
+    .slide-divider {
+      background: linear-gradient(135deg, #0f172a 0%, #312e81 55%, #1d4ed8 100%);
+      color: #ffffff;
+      padding: 64px 74px;
+      justify-content: space-between;
+      overflow: hidden;
+    }
+
+    .slide-cover::before,
+    .slide-divider::before {
+      content: "";
+      position: absolute;
+      width: 560px;
+      height: 560px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(56, 189, 248, 0.25) 0%, rgba(56, 189, 248, 0) 70%);
+      top: -120px;
+      right: -100px;
+      pointer-events: none;
+    }
+
+    .slide-cover::after,
+    .slide-divider::after {
+      content: "";
+      position: absolute;
+      width: 440px;
+      height: 440px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(251, 191, 36, 0.16) 0%, rgba(251, 191, 36, 0) 70%);
+      bottom: -160px;
+      left: 30%;
+      pointer-events: none;
+    }
+
+    .cover-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14.5px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #7dd3fc;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(125, 211, 252, 0.3);
+      padding: 8px 18px;
+      border-radius: 999px;
+      width: fit-content;
+      position: relative;
+      z-index: 1;
+    }
+
+    .cover-main {
+      display: grid;
+      grid-template-columns: 1.35fr 0.85fr;
+      gap: 48px;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .cover-title {
+      font-size: 64px;
+      font-weight: 900;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin-bottom: 18px;
+    }
+
+    .cover-subtitle {
+      font-size: 22px;
+      line-height: 1.6;
+      color: #cbd5e1;
+      margin-bottom: 28px;
+    }
+
+    .cover-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .cover-tag {
+      background: rgba(255, 255, 255, 0.11);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      color: #f1f5f9;
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-size: 14.5px;
+      font-weight: 500;
+    }
+
+    .cover-tag.accent {
+      background: rgba(56, 189, 248, 0.22);
+      border-color: rgba(125, 211, 252, 0.55);
+      color: #e0f2fe;
+      font-weight: 700;
+    }
+
+    .cover-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.16);
+      padding-top: 18px;
+      font-size: 13.5px;
+      color: #94a3b8;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Slide Header */
+    .slide-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding-bottom: 14px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .header-left .kicker {
+      font-size: 12.5px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--blue);
+      margin-bottom: 5px;
+    }
+
+    .header-left .kicker.unit2 {
+      color: var(--indigo);
+    }
+
+    .header-left .kicker.quiz {
+      color: var(--emerald);
+    }
+
+    .header-left h2 {
+      font-size: 30px;
+      font-weight: 800;
+      color: var(--ink-primary);
+      letter-spacing: -0.015em;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .part-chip {
+      font-size: 12px;
+      font-weight: 800;
+      padding: 5px 12px;
+      border-radius: 999px;
+      background: var(--blue-soft);
+      color: var(--blue);
+      border: 1px solid var(--blue-border);
+    }
+
+    .part-chip.u2 {
+      background: var(--indigo-soft);
+      color: var(--indigo);
+      border-color: var(--indigo-border);
+    }
+
+    .part-chip.quiz {
+      background: var(--emerald-soft);
+      color: var(--emerald);
+      border-color: var(--emerald-border);
+    }
+
+    .slide-num-badge {
+      font-family: var(--font-mono);
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--ink-muted);
+      background: var(--slide-bg-soft);
+      border: 1px solid var(--border);
+      padding: 5px 13px;
+      border-radius: 999px;
+    }
+
+    .slide-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 18px;
+      min-height: 0;
+    }
+
+    /* Grids & Cards */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+      align-items: stretch;
+    }
+
+    .grid-2-uneven {
+      display: grid;
+      grid-template-columns: 1.05fr 1.15fr;
+      gap: 24px;
+      align-items: center;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .card {
+      background: var(--slide-bg-soft);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .card-blue { background: var(--blue-soft); border-color: var(--blue-border); }
+    .card-amber { background: var(--amber-soft); border-color: var(--amber-border); }
+    .card-emerald { background: var(--emerald-soft); border-color: var(--emerald-border); }
+    .card-rose { background: var(--rose-soft); border-color: var(--rose-border); }
+    .card-indigo { background: var(--indigo-soft); border-color: var(--indigo-border); }
+
+    .card h3 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--ink-primary);
+    }
+
+    .card p {
+      font-size: 15.5px;
+      line-height: 1.6;
+      color: var(--ink-secondary);
+    }
+
+    .unit-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .unit-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 15.5px;
+      line-height: 1.5;
+      color: var(--ink-secondary);
+    }
+
+    .unit-list li strong {
+      color: var(--ink-primary);
+    }
+
+    .unit-dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 7px;
+      background: var(--blue);
+      color: #fff;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .unit-dot.u2 {
+      background: var(--indigo);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12.5px;
+      font-weight: 700;
+      padding: 4px 11px;
+      border-radius: 999px;
+      width: fit-content;
+    }
+
+    .pill-blue { background: #dbeafe; color: #1d4ed8; }
+    .pill-amber { background: #fef3c7; color: #b45309; }
+    .pill-emerald { background: #d1fae5; color: #047857; }
+    .pill-rose { background: #ffe4e6; color: #be123c; }
+    .pill-indigo { background: #e0e7ff; color: #3730a3; }
+
+    /* Formula Badge */
+    .formula-box {
+      font-family: var(--font-mono);
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 15.5px;
+      font-weight: 700;
+      color: var(--ink-primary);
+      text-align: center;
+    }
+
+    .formula-inline {
+      font-family: var(--font-mono);
+      background: rgba(15, 23, 42, 0.06);
+      padding: 2px 7px;
+      border-radius: 6px;
+      font-size: 0.94em;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    /* Tables */
+    table.styled-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      font-size: 15px;
+    }
+
+    table.styled-table.compact {
+      font-size: 13.8px;
+    }
+
+    table.styled-table thead th {
+      background: #0f172a;
+      color: #f8fafc;
+      text-align: left;
+      padding: 11px 15px;
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 0.03em;
+    }
+
+    table.styled-table.compact thead th {
+      padding: 9px 12px;
+      font-size: 13px;
+    }
+
+    table.styled-table tbody td {
+      padding: 11px 15px;
+      border-bottom: 1px solid var(--border);
+      color: var(--ink-secondary);
+      line-height: 1.48;
+      vertical-align: middle;
+    }
+
+    table.styled-table.compact tbody td {
+      padding: 8px 12px;
+      line-height: 1.42;
+    }
+
+    table.styled-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    table.styled-table tbody tr:nth-child(even) {
+      background: #f8fafc;
+    }
+
+    table.styled-table td strong {
+      color: var(--ink-primary);
+    }
+
+    /* Callout Banner */
+    .callout {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 13px 20px;
+      border-radius: 14px;
+      border-left: 5px solid var(--blue);
+      background: var(--blue-soft);
+      font-size: 15px;
+      line-height: 1.5;
+      color: #1e3a8a;
+    }
+
+    .callout.warn {
+      border-left-color: var(--rose);
+      background: var(--rose-soft);
+      color: #881337;
+    }
+
+    .callout.tip {
+      border-left-color: var(--emerald);
+      background: var(--emerald-soft);
+      color: #065f46;
+    }
+
+    .callout.indigo {
+      border-left-color: var(--indigo);
+      background: var(--indigo-soft);
+      color: #312e81;
+    }
+
+    .callout-label {
+      font-weight: 800;
+      white-space: nowrap;
+      font-size: 14.5px;
+    }
+
+    /* Interactive Circuit Debugger (Slide 5) */
+    .interactive-tabs {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 4px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      border: 2px solid var(--border);
+      background: #ffffff;
+      color: var(--ink-secondary);
+      padding: 11px 15px;
+      border-radius: 12px;
+      font-family: var(--font-sans);
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .tab-btn:hover {
+      border-color: #94a3b8;
+      background: #f8fafc;
+    }
+
+    .tab-btn.active-ok {
+      border-color: var(--emerald);
+      background: var(--emerald-soft);
+      color: #065f46;
+    }
+
+    .tab-btn.active-err {
+      border-color: var(--rose);
+      background: var(--rose-soft);
+      color: #9f1239;
+    }
+
+    .sim-box {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px 22px;
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 22px;
+      align-items: center;
+    }
+
+    @keyframes flowDash {
+      to { stroke-dashoffset: -28; }
+    }
+    .current-flow {
+      stroke-dasharray: 8 6;
+      animation: flowDash 0.85s linear infinite;
+    }
+
+    /* 5-step Mantra Flow (Slide 6) */
+    .mantra-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .mantra-item {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      background: var(--slide-bg-soft);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 20px;
+    }
+
+    .mantra-num {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: var(--blue);
+      color: #fff;
+      font-family: var(--font-mono);
+      font-size: 19px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .mantra-item:nth-child(5) .mantra-num {
+      background: var(--rose);
+    }
+
+    .mantra-text {
+      font-size: 19.5px;
+      font-weight: 700;
+      color: var(--ink-primary);
+    }
+
+    .mantra-sub {
+      margin-left: auto;
+      font-size: 13.5px;
+      color: var(--ink-muted);
+      background: #ffffff;
+      border: 1px solid var(--border);
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+
+    /* Dark Interactive Simulator Boxes */
+    .signal-sim {
+      background: #0f172a;
+      color: #f8fafc;
+      border-radius: 16px;
+      padding: 18px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .slider-row input[type="range"] {
+      flex: 1;
+      accent-color: #38bdf8;
+      height: 8px;
+      cursor: pointer;
+    }
+
+    .signal-readouts {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .signal-readouts.cols-2 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .readout-card {
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 12px;
+      padding: 11px 15px;
+    }
+
+    .readout-label {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-bottom: 3px;
+      font-weight: 600;
+    }
+
+    .readout-val {
+      font-family: var(--font-mono);
+      font-size: 24px;
+      font-weight: 800;
+      color: #38bdf8;
+    }
+
+    .readout-val.amber { color: #fbbf24; }
+    .readout-val.emerald { color: #34d399; }
+    .readout-val.rose { color: #fb7185; }
+
+    .readout-bar {
+      height: 6px;
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 7px;
+    }
+
+    .readout-fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 0.1s ease;
+    }
+
+    /* Slide 8 Module Comparison */
+    .module-card {
+      border-radius: 18px;
+      padding: 24px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      border: 2px solid var(--border);
+    }
+
+    .module-card.digital {
+      background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);
+      border-color: var(--blue-border);
+    }
+
+    .module-card.analog {
+      background: linear-gradient(180deg, #ecfdf5 0%, #ffffff 100%);
+      border-color: var(--emerald-border);
+    }
+
+    .big-badge {
+      font-size: 38px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+    }
+
+    /* Unit 2 Divider List */
+    .divider-list {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .divider-pill-card {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 14px;
+      padding: 18px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .divider-pill-card .num {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 800;
+      color: #7dd3fc;
+    }
+
+    .divider-pill-card .ttl {
+      font-size: 16.5px;
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1.35;
+    }
+
+    .divider-pill-card .sub {
+      font-size: 13px;
+      color: #cbd5e1;
+      line-height: 1.45;
+    }
+
+    /* Final Interactive Quiz (Slide 17) */
+    .quiz-shell {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      height: 100%;
+    }
+
+    .quiz-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .quiz-dots {
+      display: flex;
+      gap: 8px;
+    }
+
+    .quiz-dot {
+      width: 38px;
+      height: 34px;
+      border-radius: 10px;
+      border: 2px solid var(--border);
+      background: #ffffff;
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--ink-secondary);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .quiz-dot.active {
+      border-color: var(--blue);
+      background: var(--blue-soft);
+      color: var(--blue);
+    }
+
+    .quiz-dot.correct {
+      border-color: var(--emerald);
+      background: var(--emerald);
+      color: #ffffff;
+    }
+
+    .quiz-dot.wrong {
+      border-color: var(--rose);
+      background: var(--rose);
+      color: #ffffff;
+    }
+
+    .quiz-card {
+      background: var(--slide-bg-soft);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 24px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      flex: 1;
+    }
+
+    .quiz-question {
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--ink-primary);
+      line-height: 1.5;
+    }
+
+    .quiz-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .quiz-opt {
+      text-align: left;
+      padding: 15px 18px;
+      border-radius: 13px;
+      border: 2px solid var(--border);
+      background: #ffffff;
+      font-family: var(--font-sans);
+      font-size: 15.5px;
+      font-weight: 600;
+      color: var(--ink-primary);
+      cursor: pointer;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      line-height: 1.45;
+      transition: all 0.15s ease;
+    }
+
+    .quiz-opt:hover:not(:disabled) {
+      border-color: var(--blue);
+      background: var(--blue-soft);
+    }
+
+    .quiz-opt:disabled {
+      cursor: default;
+    }
+
+    .quiz-opt.is-correct {
+      border-color: var(--emerald);
+      background: var(--emerald-soft);
+      color: #065f46;
+    }
+
+    .quiz-opt.is-wrong {
+      border-color: var(--rose);
+      background: var(--rose-soft);
+      color: #9f1239;
+    }
+
+    .opt-key {
+      width: 26px;
+      height: 26px;
+      border-radius: 7px;
+      background: #e2e8f0;
+      color: #0f172a;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .quiz-feedback {
+      border-radius: 12px;
+      padding: 14px 18px;
+      font-size: 15px;
+      line-height: 1.55;
+      display: none;
+    }
+
+    .quiz-feedback.show-ok {
+      display: block;
+      background: var(--emerald-soft);
+      border: 1px solid var(--emerald-border);
+      color: #065f46;
+    }
+
+    .quiz-feedback.show-err {
+      display: block;
+      background: var(--rose-soft);
+      border: 1px solid var(--rose-border);
+      color: #9f1239;
+    }
+
+    .quiz-nav-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: auto;
+    }
+
+    .quiz-btn {
+      background: var(--ink-primary);
+      color: #ffffff;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-family: var(--font-sans);
+      font-size: 14.5px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .quiz-btn.secondary {
+      background: #ffffff;
+      color: var(--ink-primary);
+      border: 1px solid var(--border);
+    }
+
+    .quiz-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* Closing Slide */
+    .slide-closing {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 65%, #0f172a 100%);
+      color: #ffffff;
+      justify-content: space-between;
+      padding: 58px 70px;
+    }
+
+    .closing-box {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 16px;
+      padding: 22px 26px;
+    }
+
+    /* Bottom Control Bar */
+    .controls-bar {
+      position: fixed;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(15, 23, 42, 0.88);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      padding: 8px 14px;
+      border-radius: 999px;
+      color: #e2e8f0;
+      z-index: 50;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    }
+
+    .ctrl-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #f8fafc;
+      padding: 7px 14px;
+      border-radius: 999px;
+      font-family: var(--font-sans);
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .ctrl-btn:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.18);
+    }
+
+    .ctrl-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    .page-counter {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 700;
+      padding: 0 10px;
+      color: #7dd3fc;
+      min-width: 76px;
+      text-align: center;
+    }
+
+    .progress-track {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      z-index: 60;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #38bdf8, #818cf8);
+      width: 6%;
+      transition: width 0.3s ease;
+    }
+
+    /* Slide Overview Modal */
+    .overview-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+    }
+
+    .overview-modal.open {
+      display: flex;
+    }
+
+    .overview-panel {
+      background: #0f172a;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 20px;
+      max-width: 1040px;
+      width: 100%;
+      max-height: 86vh;
+      overflow-y: auto;
+      padding: 26px 30px;
+      color: #f8fafc;
+    }
+
+    .overview-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .overview-item {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      padding: 12px 15px;
+      text-align: left;
+      color: #f1f5f9;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: var(--font-sans);
+      font-size: 14px;
+      transition: all 0.15s ease;
+    }
+
+    .overview-item:hover,
+    .overview-item.current {
+      background: rgba(56, 189, 248, 0.18);
+      border-color: #38bdf8;
+    }
+
+    .overview-idx {
+      font-family: var(--font-mono);
+      font-weight: 800;
+      font-size: 14px;
+      color: #7dd3fc;
+      width: 26px;
+      flex-shrink: 0;
+    }
+
+    .overview-part {
+      margin-left: auto;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.1);
+      color: #cbd5e1;
+      flex-shrink: 0;
+    }
+
+    /* Print Support */
+    @media print {
+      html, body {
+        overflow: visible;
+        background: #fff;
+        height: auto;
+      }
+      .controls-bar, .progress-track, .overview-modal {
+        display: none !important;
+      }
+      .viewport {
+        padding: 0;
+        height: auto;
+        display: block;
+      }
+      .deck {
+        transform: none !important;
+        width: 100%;
+        height: auto;
+        box-shadow: none;
+        overflow: visible;
+      }
+      .slide {
+        position: relative;
+        opacity: 1 !important;
+        transform: none !important;
+        pointer-events: auto;
+        page-break-after: always;
+        border: 1px solid #e2e8f0;
+        margin-bottom: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="progress-track"><div id="progressBar" class="progress-bar"></div></div>
+
+  <div class="viewport">
+    <div class="stage-wrapper">
+      <main id="deck" class="deck" aria-live="polite">
+
+        <!-- ==================== SLIDE 1: 封面 ==================== -->
+        <section class="slide slide-cover active" data-title="封面：電學基礎" data-part="封面">
+          <div class="cover-eyebrow">⚡ LLM WIKI 課程簡報 · FUNDAMENTALS OF ELECTRICITY</div>
+
+          <div class="cover-main">
+            <div>
+              <h1 class="cover-title">電學基礎</h1>
+              <p class="cover-subtitle">
+                從<strong>基本電位觀念與數位／類比訊號</strong>出發，完整銜接<strong>歐姆定律、RLC 元件、運算放大器與 RC 濾波器</strong>
+              </p>
+              <div class="cover-tags">
+                <span class="cover-tag accent">單元一｜基礎電學觀念與訊號入門</span>
+                <span class="cover-tag accent">單元二｜基礎類比電路與量測實務</span>
+                <span class="cover-tag">5 個互動示範模擬器</span>
+                <span class="cover-tag">全篇複習與綜合考題</span>
+              </div>
+            </div>
+
+            <div style="display:flex; justify-content:center;">
+              <svg width="360" height="320" viewBox="0 0 360 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="20" y="20" width="320" height="280" rx="24" fill="rgba(255,255,255,0.07)" stroke="rgba(125,211,252,0.35)" stroke-width="2"/>
+                <rect x="52" y="54" width="54" height="108" rx="10" fill="#38bdf8" fill-opacity="0.22" stroke="#7dd3fc" stroke-width="2.5"/>
+                <rect x="67" y="42" width="24" height="12" rx="3" fill="#7dd3fc"/>
+                <text x="79" y="88" text-anchor="middle" fill="#fbbf24" font-size="22" font-weight="800">＋</text>
+                <text x="79" y="142" text-anchor="middle" fill="#94a3b8" font-size="22" font-weight="800">－</text>
+                <path d="M106 72 H174 V92" stroke="#fbbf24" stroke-width="3.5" stroke-linecap="round" class="current-flow"/>
+                <path d="M174 134 V148 H106" stroke="#38bdf8" stroke-width="3.5" stroke-linecap="round" class="current-flow"/>
+                <rect x="142" y="92" width="64" height="42" rx="10" fill="#10b981" fill-opacity="0.25" stroke="#34d399" stroke-width="2.5"/>
+                <text x="174" y="117" text-anchor="middle" fill="#ecfdf5" font-size="11.5" font-weight="800">7697</text>
+
+                <polygon points="236,64 236,150 310,107" fill="#818cf8" fill-opacity="0.24" stroke="#a5b4fc" stroke-width="2.5"/>
+                <text x="250" y="95" fill="#e0e7ff" font-size="15" font-weight="800">−</text>
+                <text x="250" y="128" fill="#e0e7ff" font-size="15" font-weight="800">+</text>
+                <text x="274" y="166" text-anchor="middle" fill="#c7d2fe" font-size="11" font-weight="700">Op-Amp / RLC</text>
+
+                <line x1="48" y1="194" x2="312" y2="194" stroke="rgba(255,255,255,0.16)" stroke-width="1.5"/>
+
+                <path d="M52 246 H84 V224 H114 V246 H144" stroke="#38bdf8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                <text x="98" y="272" text-anchor="middle" fill="#cbd5e1" font-size="11.5" font-weight="700">Digital (0 / 1)</text>
+
+                <path d="M188 236 C206 210, 224 262, 242 236 C260 210, 278 262, 296 236" stroke="#34d399" stroke-width="3" stroke-linecap="round"/>
+                <text x="242" y="272" text-anchor="middle" fill="#cbd5e1" font-size="11.5" font-weight="700">Analog &amp; RC Filter</text>
+              </svg>
+            </div>
+          </div>
+
+          <div class="cover-footer">
+            <span>資料來源：<code>wiki/concepts/basic-electricity.md</code> ＋ <code>wiki/concepts/basic-analog-circuits.md</code></span>
+            <span>操作：方向鍵 ← / → 換頁 · G 開啟目錄 · F 全螢幕 · Ctrl+P 匯出 PDF</span>
+          </div>
+        </section>
+
+        <!-- ==================== SLIDE 2: 課程導覽 ==================== -->
+        <section class="slide" data-title="課程導覽：單元一與單元二學習地圖" data-part="導覽">
+          <div class="slide-header">
+            <div class="header-left">
+              <div class="kicker">COURSE ROADMAP</div>
+              <h2>課程架構：兩大單元帶你從入門到進階</h2>
+            </div>
+            <div class="header-right">
+              <span class="part-chip">課程導覽</span>
+              <div class="slide-num-badge">02 / 18</div>
+            </div>
+          </div>
+
+          <div class="slide-body">
+            <div class="grid-2">
+              <div class="card card-blue">
+                <span class="pill pill-blue">單元一 · 定性觀念與訊號入門</span>
+                <h3>基礎電學觀念（LinkIt 7697 入門）</h3>
+                <ul class="unit-list">
+                  <li><span class="unit-dot">1</span><span><strong>電壓與接地（GND）</strong>：以水力類比認識電位差</span></li>
+                  <li><span class="unit-dot">2</span><span><strong>電流、直流電（DC）與短路</strong>：負載設備與安全迴路</span></li>
+                  <li><span class="unit-dot">3</span><span><strong>電路不導通排查</strong>：缺乏電位差 vs 電路中斷</span></li>
+                  <li><span class="unit-dot">4</span><span><strong>五大核心口訣</strong>：快速建立電學因果邏輯</span></li>
+                  <li><span class="unit-dot">5</span><span><strong>數位與類比訊號／模組</strong>：0/1、0~255、0~4095 與感測器分類</span></li>
+                </ul>
+              </div>
+
+              <div class="card card-indigo">
+                <span class="pill pill-indigo">單元二 · 定量分析與量測實務</span>
+                <h3>基礎類比電路（NI 量測基礎）</h3>
+                <ul class="unit-list">
+                  <li><span class="unit-dot u2">1</span><span><strong>歐姆定律與功率耗散</strong>：V = I·R 與 50 Ω 平方律效應</span></li>
+                  <li><span class="unit-dot u2">2</span><span><strong>串聯分壓與並聯分流</strong>：等效電阻計算與 DMM 應用</span></li>
+                  <li><span class="unit-dot u2">3</span><span><strong>電阻、電容與電感</strong>：串並聯規則、互感、阻抗與導納</span></li>
+                  <li><span class="unit-dot u2">4</span><span><strong>運算放大器（Op-Amp）</strong>：三級模型、反相與非反相組態</span></li>
+                  <li><span class="unit-dot u2">5</span><span><strong>類比 RC 濾波器</strong>：低通／高通、−3 dB 頻率與 AC／DC 耦合</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="callout tip">
+              <span class="callout-label">學習節奏</span>
+              <span>先完整學完<strong>單元一</strong>與<strong>單元二</strong>，接著透過<strong>全篇總複習（第 16 頁）</strong>統整觀念，最後再以<strong>綜合複習考題（第 17 頁）</strong>檢核學習成果！</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== 單元一: SLIDE 3 ==================== -->
+        <section class="slide" data-title="單元一・01：電壓、接地（GND）與水力類比" data-part="單元一">
+          <div class="slide-header">
+            <div class="header-left">
+              <div class="kicker">UNIT 1 · 01 · VOLTAGE &amp; GROUND</div>
+              <h2>電壓、接地（GND）與水力類比</h2>
+            </div>
+            <div class="header-right">
+              <span class="part-chip">單元一｜基礎電學</span>
+              <div class="slide-num-badge">03 / 18</div>
+            </div>
+          </div>
+
+          <div class="slide-body">
+            <div class="grid-2-uneven">
+              <div class="card" style="padding: 16px 18px; background: #fff;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                  <span class="pill pill-blue">水塔類比圖解</span>
+                  <span style="font-size:13px; color:var(--ink-muted);">高水位 → 低水位 ＝ 正極 → 負極</span>
+                </div>
+                <svg width="100%" viewBox="0 0 470 315" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <line x1="20" y1="286" x2="450" y2="286" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/>
+                  <text x="415" y="305" fill="#64748b" font-size="13" font-weight="700">地面 / GND</text>
+                  <rect x="300" y="54" width="110" height="232" rx="10" fill="#eff6ff" stroke="#2563eb" stroke-width="3"/>
+                  <rect x="303" y="88" width="104" height="195" rx="6" fill="#60a5fa" fill-opacity="0.55"/>
+                  <text x="355" y="42" text-anchor="middle" fill="#1d4ed8" font-size="15" font-weight="800">高水位 ＝ 高電位（＋）</text>
+                  <rect x="44" y="168" width="110" height="118" rx="10" fill="#f1f5f9" stroke="#64748b" stroke-width="3"/>
+                  <rect x="47" y="218" width="104" height="65" rx="6" fill="#93c5fd" fill-opacity="0.55"/>
+                  <text x="99" y="156" text-anchor="middle" fill="#475569" font-size="15" font-weight="800">低水位 ＝ 低電位（－）</text>
+                  <path d="M300 132 L154 226" stroke="#1e293b" stroke-width="18" stroke-linecap="round"/>
+                  <path d="M300 132 L154 226" stroke="#38bdf8" stroke-width="10" stroke-linecap="round" class="current-flow"/>
+                  <circle cx="227" cy="179" r="26" fill="#fef3c7" stroke="#d97706" stroke-width="3.5"/>
+                  <line x1="209" y1="179" x2="245" y2="179" stroke="#d97706" stroke-width="3"/>
+                  <line x1="227" y1="161" x2="227" y2="197" stroke="#d97706" stroke-width="3"/>
+                  <text x="227" y="226" text-anchor="middle" fill="#b45309" font-size="13" font-weight="800">水輪機（負載設備）</text>
+                  <line x1="274" y1="88" x2="274" y2="218" stroke="#e11d48" stroke-width="2.5" stroke-dasharray="5 4"/>
+                  <polygon points="274,82 269,93 279,93" fill="#e11d48"/>
+                  <polygon points="274,224 269,213 279,213" fill="#e11d48"/>
+                  <rect x="178" y="88" width="88" height="42" rx="8" fill="#fff1f2" stroke="#fecdd3" stroke-width="1.5"/>
+                  <text x="222" y="106" text-anchor="middle" fill="#be123c" font-size="13" font-weight="800">水位差</text>
+                  <text x="222" y="123" text-anchor="middle" fill="#be123c" font-size="12" font-weight="700">＝ 電位差(V)</text>
+                </svg>
+                <p style="font-size:13.5px; color:var(--ink-secondary); margin-top:4px;">
+                  <strong>核心概念：</strong>電壓單位為伏特（V），代表推動電流能力的大小；電流固定由正極流向負極即為<strong>直流電（DC）</strong>。
+                </p>
+              </div>
+
+              <div>
+                <table class="styled-table">
+                  <thead>
+                    <tr>
+                      <th style="width:34%;">電學概念</th>
+                      <th style="width:26%;">水力類比</th>
+                      <th>概念說明</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td><strong>高電位（正極，＋）</strong></td><td>高水位</td><td>電位較高的一端（LinkIt 7697 課程說明 5V）</td></tr>
+                    <tr><td><strong>低電位（負極／GND）</strong></td><td>低水位</td><td>電位較低的一端，又稱接地</td></tr>
+                    <tr><td><strong>電位差（電壓，V）</strong></td><td>水位差（水壓）</td><td>推動流動的動力來源</td></tr>
+                    <tr><td><strong>導體（銅、鐵）</strong></td><td>連接的水管</td><td>提供流動路徑（常見電線材質為銅）</td></tr>
+                    <tr><td><strong>電流（Current）</strong></td><td>水流</td><td>電在導體中由高電位流向低電位</td></tr>
+                    <tr><td><strong>負載設備</strong></td><td>水輪機／裝置</td><td>吸收能量運轉，避免直接短路</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== 單元一: SLIDE 4 ==================== -->
+        <section class="slide" data-title="單元一・02：電流、直流電與短路安全" data-part="單元一">
+          <div class="slide-header">
+            <div class="header-left">
+              <div class="kicker">UNIT 1 · 02 · CURRENT &amp; SHORT CIRCUIT</div>
+              <h2>電流、直流電（DC）與短路安全觀念</h2>
+            </div>
+            <div class="header-right">
+              <span class="part-chip">單元一｜基礎電學</span>
+              <div class="slide-num-badge">04 / 18</div>
+            </div>
+          </div>
+
+          <div class="slide-body">
+            <div class="grid-2">
+              <div class="card card-emerald" style="gap:12px;">
+                <span class="pill pill-emerald">✅ 正常迴路：連接負載設備</span>
+                <h3>電流流經設備並推動運轉</h3>
+                <svg width="100%" viewBox="0 0 480 210" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="20" y="16" width="440" height="178" rx="14" fill="#ffffff" stroke="#a7f3d0" stroke-width="2"/>
+                  <rect x="64" y="54" width="54" height="106" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="3"/>
+                  <rect x="79" y="42" width="24" height="12" rx="3" fill="#2563eb"/>
+                  <text x="91" y="84" text-anchor="middle" fill="#d97706" font-size="22" font-weight="800">＋</text>
+                  <text x="91" y="144" text-anchor="middle" fill="#475569" font-size="22" font-weight="800">－</text>
+                  <path d="M118 70 H352 V82" stroke="#059669" stroke-width="5" stroke-linecap="round" class="current-flow"/>
+                  <path d="M352 138 V146 H118" stroke="#059669" stroke-width="5" stroke-linecap="round" class="current-flow"/>
+                  <circle cx="352" cy="110" r="28" fill="#fef08a" stroke="#ca8a04" stroke-width="3.5"/>
+                  <text x="352" y="115" text-anchor="middle" fill="#854d0e" font-size="14" font-weight="800">設備</text>
+                  <text x="235" y="60" text-anchor="middle" fill="#047857" font-size="13" font-weight="700">直流電：正極 → 負載設備 → 負極</text>
+                </svg>
+                <p>電在導體（如銅線）中由高電位流向低電位並經過<strong>負載設備</strong>，如同水流經過水輪機，將能量轉換為有效工作。</p>
+              </div>
+
+              <div class="card card-rose" style="gap:12px;">
+                <span class="pill pill-rose">⚠️ 危險接法：缺少負載設備</span>
+                <h3>正負極直接連通會造成短路（Short Circuit）</h3>
+                <svg width="100%" viewBox="0 0 480 210" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="20" y="16" width="440" height="178" rx="14" fill="#ffffff" stroke="#fecdd3" stroke-width="2"/>
+                  <rect x="64" y="54" width="54" height="106" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="3"/>
+                  <rect x="79" y="42" width="24" height="12" rx="3" fill="#2563eb"/>
+                  <text x="91" y="84" text-anchor="middle" fill="#d97706" font-size="22" font-weight="800">＋</text>
+                  <text x="91" y="144" text-anchor="middle" fill="#475569" font-size="22" font-weight="800">－</text>
+                  <path d="M118 70 H352 V146 H118" stroke="#e11d48" stroke-width="6" stroke-linecap="round" class="current-flow"/>
+                  <circle cx="352" cy="108" r="28" fill="#ffe4e6" stroke="#e11d48" stroke-width="3.5" stroke-dasharray="6 4"/>
+                  <text x="352" y="117" text-anchor="middle" fill="#be123c" font-size="26" font-weight="900">!</text>
+                  <text x="235" y="60" text-anchor="middle" fill="#be123c" font-size="13" font-weight="800">無負載設備 → 直接短路！</text>
+                </svg>
+                <p>若沒有連接任何設備，讓電流直接從高電位衝向低電位，如同水管間沒有水輪機而浪費能量，在電路中即會造成<strong>短路</strong>。</p>
+              </div>
+            </div>
+
+            <div class="callout warn">
+              <span class="callout-label">實作安全提醒</span>
+              <span>接線通電前，務必確認<strong>正極與負極（GND）之間有串接負載設備</strong>，絕不可用導線將正負極直接短接。</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== 單元一: SLIDE 5 (互動 1) ==================== -->
+        <section class="slide" data-title="單元一・03：電路不導通的常見原因（互動模擬）" data-part="單元一">
+          <div class="slide-header">
+            <div class="header-left">
+              <div class="kicker">UNIT 1 · 03 · CIRCUIT CONTINUITY</div>
+              <h2>為什麼沒有電流？兩種常見不導通原因</h2>
+            </div>
+            <div class="header-right">
+              <span class="part-chip">單元一｜基礎電學</span>
+              <div class="slide-num-badge">05 / 18</div>
+            </div>
+          </div>
+
+          <div class="slide-body" style="gap:14px;">
+            <div class="interactive-tabs">
+              <button class="tab-btn active-ok" id="btnNormal" onclick="setCircuitMode('normal')">✅ 狀態 1：正常導通</button>
+              <button class="tab-btn" id="btnNoDiff" onclick="setCircuitMode('nodiff')">❌ 原因 A：沒有電位差（同接正極）</button>
+              <button class="tab-btn" id="btnBroken" onclick="setCircuitMode('broken')">✂️ 原因 B：電路中斷（導線剪斷）</button>
+            </div>
+
+            <div class="sim-box">
+              <svg id="circuitSvg" width="100%" viewBox="0 0 560 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="8" y="8" width="544" height="284" rx="16" fill="#ffffff" stroke="#e2e8f0" stroke-width="2"/>
+                <rect x="58" y="72" width="70" height="156" rx="12" fill="#dbeafe" stroke="#2563eb" stroke-width="3"/>
+                <rect x="77" y="56" width="32" height="16" rx="4" fill="#2563eb"/>
+                <text x="93" y="114" text-anchor="middle" fill="#d97706" font-size="26" font-weight="800">＋</text>
+                <text x="93" y="135" text-anchor="middle" fill="#1e40af" font-size="12" font-weight="700">高電位</text>
+                <text x="93" y="198" text-anchor="middle" fill="#475569" font-size="26" font-weight="800">－</text>
+                <text x="93" y="216" text-anchor="middle" fill="#64748b" font-size="12" font-weight="700">低電位</text>
+                <path id="wireTop" d="M128 96 H390 V116" stroke="#059669" stroke-width="5" stroke-linecap="round" class="current-flow"/>
+                <path id="wireBottomLeft" d="M128 202 H242" stroke="#059669" stroke-width="5" stroke-linecap="round" class="current-flow"/>
+                <path id="wireBottomRight" d="M242 202 H390 V184" stroke="#059669" stroke-width="5" stroke-linecap="round" class="current-flow"/>
+                <path id="wireNoDiff" d="M128 112 H210 V202 H390 V184" stroke="#94a3b8" stroke-width="5" stroke-linecap="round" style="display:none;"/>
+                <g id="cutMark" style="display:none;">
+                  <rect x="228" y="184" width="44" height="36" fill="#ffffff"/>
+                  <line x1="234" y1="188" x2="266" y2="216" stroke="#e11d48" stroke-width="4" stroke-linecap="round"/>
+                  <line x1="266" y1="188" x2="234" y2="216" stroke="#e11d48" stroke-width="4" stroke-linecap="round"/>
+                  <text x="250" y="242" text-anchor="middle" fill="#be123c" font-size="13" font-weight="800">導線斷開（無導體連接）</text>
+                </g>
+                <circle id="bulbGlow" cx="390" cy="150" r="46" fill="#fef08a" fill-opacity="0.55"/>
+                <circle id="bulbCore" cx="390" cy="150" r="34" fill="#fde047" stroke="#ca8a04" stroke-width="3.5"/>
+                <text id="bulbText" x="390" y="155" text-anchor="middle" fill="#713f12" font-size="15" font-weight="800">發光中</text>
+                <rect id="statusBg" x="158" y="24" width="290" height="34" rx="17" fill="#ecfdf5" stroke="#a7f3d0" stroke-width="1.5"/>
+                <text id="statusLabel" x="303" y="46" text-anchor="middle" fill="#047857" font-size="14" font-weight="800">有電位差 ＋ 導體完整 ＝ 電流導通</text>
+              </svg>
+
+              <div style="display:flex; flex-direction:column; gap:12px;">
+                <span id="diagBadge" class="pill pill-emerald">診斷結果：正常運作</span>
+                <h3 id="diagTitle" style="font-size:22px; font-weight:800;">正負極透過設備形成完整迴路</h3>
+                <p id="diagDesc" style="font-size:15.5px; line-height:1.6; color:var(--ink-secondary);">
+                  導線分別連接正極（高電位）與負極（低電位），產生電位差且導體未中斷，電流順利從高電位流向低電位，點亮燈泡。
+                </p>
+                <div style="background:#ffffff; border:1px solid var(--border); border-radius:12px; padding:13px 15px;">
+                  <div style="font-size:12.5px; font-weight:800; color:var(--blue); margin-bottom:4px;">💧 水流類比對照</div>
+                  <div id="diagAnalogy" style="font-size:14.5px; color:var(--ink-primary); line-height:1.5;">
+                    高水位與低水位之間有水管相通，水自然流動並推動水輪機。
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="callout tip">
+              <span class="callout-label">自我檢查口訣</span>
+              <span>遇到設備不會亮，先檢查兩件事：<strong>① 兩端有分別接到高、低電位嗎？</strong> <strong>② 中間導線有鬆脫或斷開嗎？</strong></span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== 單元一: SLIDE 6 ==================== -->
+        <section class="slide" data-title="單元一・04：基礎電學五大核心口訣" data-part="單元一">
+          <div class="slide-header">
+            <div class="header-left">
+              <div class="kicker">UNIT 1 · 04 · KEY TAKEAWAYS</div>
+              <h2>回想一下：基礎電學五大核心口訣</h2>
+            </div>
+            <div class="header-right">
+              <span class="part-chip">單元一｜基礎電學</span>
+              <div class="slide-num-badge">06 / 18</div>
+            </div>
+          </div>
+
+          <div class="slide-body">
+            <div class="mantra-list">
+              <div class="mantra-item">
+                <div class="mantra-num">1</div>
+                <div class="mantra-text">正極又稱做高電位（＋）、負極又稱為低電位（－）</div>
+                <div class="mantra-sub">電位定義</div>
+              </div>
+              <div class="mantra-item">
+                <div class="mantra-num">2</div>
+                <div class="mantra-text">正負極之間會產生壓差（電位差）</div>
+                <div class="mantra-sub">電壓來源</div>
+              </div>
+              <div class="mantra-item">
+                <div class="mantra-num">3</div>
+                <div class="mantra-text">有電位差，才會產生電流</div>
+                <div class="mantra-sub">導通前提</div>
+              </div>
+              <div class="mantra-item">
+                <div class="mantra-num">4</div>
+                <div class="mantra-text">電流從高電位流向低電位</div>
+                <div class="mantra-sub">流動方向</div>
+              </div>
+              <div class="mantra-item">
+                <div class="mantra-num">5</div>
+                <div class="mantra-text">沒有電位差或電路中斷，電就不會導通</div>
+                <div class="mantra-sub">故障排查</div>
+              </div>
+            </div>
+
+            <div class="callout">
+              <span class="callout-label">觀念小結</span>
+              <span>掌握以上五條因果關係，就能把「看不見的電」轉化為清楚的電路判斷邏輯，為接下來的訊號與微控制器控制打好基礎。</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== 單元一: SLIDE 7 (互動 2) ==================== -->
+        <section class="slide" data-title="單元一・05：數位訊號與類比訊號（互動滑桿）" data-part="單元一">
+          <div class="slide-header">
+            <div class="header-left">
+              <div class="kicker">UNIT 1 · 05 · DIGITAL &amp; ANALOG SIGNALS</div>
+              <h2>數位訊號 vs 類比訊號（以 LinkIt 7697 為例）</h2>
+            </div>
+            <div class="header-right">
+              <span class="part-chip">單元一｜基礎電學</span>
+              <div class="slide-num-badge">07 / 18</div>
+            </div>
+          </div>
+
+          <div class="slide-body" style="gap:14px;">
+            <table class="styled-table">
+              <thead>
+                <tr>
+                  <th style="width:26%;">訊號類型（LinkIt 7697）</th>
+                  <th style="width:30%;">電壓劃分方式</th>
+                  <th style="width:16%;">數值範圍</th>
+                  <th>用途與特性</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>數位訊號（Digital）</strong><br /><span style="font-size:12.5px; color:var(--ink-muted);">輸入／輸出</span></td>
+                  <td>高電位（5V）與低電位（0V）兩種</td>
+                  <td><strong><code>1</code> 與 <code>0</code></strong></td>
+                  <td>僅有開／關兩種離散狀態</td>
+                </tr>
+                <tr>
+                  <td><strong>類比訊號輸出（Analog Output）</strong></td>
+                  <td>將 0V～5V 切割為 <strong>256 份</strong></td>
+                  <td><strong><code>0 ~ 255</code></strong></td>
+                  <td>可進行 256 段漸進控制（如改變 LED 亮度）</td>
+                </tr>
+                <tr>
+                  <td><strong>類比訊號輸入（Analog Input）</strong></td>
+                  <td>將高低電位細分為 <strong>4096 份</strong></td>
+                  <td><strong><code>0 ~ 4095</code></strong></td>
+                  <td>解析度更高，可分辨 4096 種細微環境狀態</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="signal-sim">
+              <div class="slider-row">
+                <span style="font-size:14px; font-weight:700; color:#7dd3fc; white-space:nowrap;">🎛️ 動手體驗：拖曳模擬電壓，觀察數值轉換</span>
+                <input id="voltSlider" type="range" min="0" max="5" step="0.05" value="2.50" oninput="updateSignalSim(this.value)" />
+                <span id="voltDisplay" style="font-family:var(--font-mono); font-size:20px; font-weight:800; min-width:74px; text-align:right; color:#ffffff;">2.50 V</span>
+              </div>
+
+              <div class="signal-readouts">
+                <div class="readout-card">
+                  <div class="readout-label">數位訊號 Digital (0 / 1)</div>
+                  <div id="valDigital" class="readout-val">1 (高電位)</div>
+                  <div class="readout-bar"><div id="barDigital" class="readout-fill" style="width:100%; background:#38bdf8;"></div></div>
+                </div>
+                <div class="readout-card">
+                  <div class="readout-label">類比輸出 Analog Output (0 ~ 255)</div>
+                  <div id="valAnalogOut" class="readout-val amber">128</div>
+                  <div class="readout-bar"><div id="barAnalogOut" class="readout-fill" style="width:50%; background:#fbbf24;"></div></div>
+                </div>
+                <div class="readout-card">
+                  <div class="readout-label">類比輸入 Analog Input (0 ~ 4095)</div>
+                  <div id="valAnalogIn" class="readout-val emerald">2048</div>
+                  <div class="readout-bar"><div id="barAnalogIn" class="readout-fill" style="width:50%; background:#34d399;"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== 單元一: SLIDE 8 ==================== -->
+        <section class="slide" data-title="單元一・06：分辨數位模組與類比模組" data-part="單元一">
+          <div class="slide-header">
+            <div class="header-left">
+              <div class="kicker">UNIT 1 · 06 · MODULE CLASSIFICATION</div>
+              <h2>如何快速分辨「數位模組」與「類比模組」</h2>
+            </div>
+            <div class="header-right">
+              <span class="part-chip">單元一｜基礎電學</span>
+              <div class="slide-num-badge">08 / 18</div>
+            </div>
+          </div>
+
+          <div class="slide-body">
+            <div class="grid-2">
+              <div class="module-card digital">
+                <span class="pill pill-blue">DIGITAL MODULE</span>
+                <div class="big-badge" style="color:var(--blue);">只有「兩種」效果</div>
+                <p style="font-size:16.5px; color:var(--ink-secondary); line-height:1.65;">
+                  凡是狀態只有兩種結果（開／關、高／低、亮／暗）的電子元件，皆屬於<strong>數位模組</strong>。
+                </p>
+                <div style="background:#ffffff; border:1px solid var(--blue-border); border-radius:14px; padding:16px 18px; display:flex; align-items:center; gap:15px; margin-top:auto;">
+                  <div style="width:52px; height:52px; border-radius:14px; background:var(--blue); color:#fff; display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink:0;">🔘</div>
+                  <div>
+                    <div style="font-size:16.5px; font-weight:800; color:var(--ink-primary);">代表案例：按鈕開關模組</div>
+                    <div style="font-size:14px; color:var(--ink-secondary); margin-top:3px;">只有「開（按下）」與「關（放開）」兩種狀況。</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="module-card analog">
+                <span class="pill pill-emerald">ANALOG MODULE</span>
+                <div class="big-badge" style="color:var(--emerald);">具有「多種」效果</div>
+                <p style="font-size:16.5px; color:var(--ink-secondary); line-height:1.65;">
+                  能夠感應或呈現連續變化、分辨出多種不同程度強弱的電子元件，皆屬於<strong>類比模組</strong>。
+                </p>
+                <div style="background:#ffffff; border:1px solid var(--emerald-border); border-radius:14px; padding:16px 18px; display:flex; align-items:center; gap:15px; margin-top:auto;">
+                  <div style="width:52px; height:52px; border-radius:14px; background:var(--emerald); color:#fff; display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink:0;">☀️</div>
+                  <div>
+                    <div style="font-size:16.5px; font-weight:800; color:var(--ink-primary);">代表案例：光線感應模組</div>
+                    <div style="font-size:14px; color:var(--ink-secondary); margin-top:3px;">可以細微感應「多種」不同的環境亮度變化。</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="callout tip">
+              <span class="callout-label">一句記憶口訣</span>
+              <span><strong>「兩種狀態找數位，多種變化找類比」</strong>——依元件能表現的狀態數量，就能快速判斷該接數位或類比腳位！</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== 單元二: SLIDE 9 (章節轉場) ==================== -->
+        <section class="slide slide-divider" data-title="單元二導覽：基礎類比電路與量測實務" data-part="單元二">
+          <div class="cover-eyebrow">🔬 UNIT 2 · BASIC ANALOG CIRCUITS &amp; MEASUREMENT (NI)</div>
+
+          <div style="position:relative; z-index:1;">
+            <h2 style="font-size:48px; font-weight:800; line-height:1.22; margin-bottom:16px;">
+              單元二：<br />基礎類比電路與量測實務
+            </h2>
+            <p style="font-size:19.5px; color:#cbd5e1; line-height:1.65; max-width:920px; margin-bottom:32px;">
+              建立基本電位觀念後，接下來進入定量電路分析與量測儀器（DMM、數位化儀、DAQ）必備的五大核心主題：
+            </p>
+
+            <div class="divider-list">
+              <div class="divider-pill-card">
+                <div class="num">2-1 · OHM &amp; POWER</div>
+                <div class="ttl">歐姆定律與功率</div>
+                <div class="sub">V = I·R、功率公式與 50 Ω 平方律效應</div>
+              </div>
+              <div class="divider-pill-card">
+                <div class="num">2-2 · DIVIDER</div>
+                <div class="ttl">分壓與分流電路</div>
+                <div class="sub">串並聯等效電阻與 DMM 量測特性</div>
+              </div>
+              <div class="divider-pill-card">
+                <div class="num">2-3 · R / C / L</div>
+                <div class="ttl">被動元件與阻抗</div>
+                <div class="sub">電容電感串並聯、互感、Z 與 Y</div>
+              </div>
+              <div class="divider-pill-card">
+                <div class="num">2-4 · OP-AMP</div>
+                <div class="ttl">運算放大器電路</div>
+                <div class="sub">三級內部模型、反相與非反相組態</div>
+              </div>
+              <div class="divider-pill-card">
+                <div class="num">2-5 · RC FILTER</div>
+                <div class="ttl">類比 RC 濾波器</div>
+                <div class="sub">低通／高通、−3 dB 與 AC／DC 耦合</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="cover-footer">
+            <span>來源條目：<code>wiki/concepts/basic-analog-circuits.md</code>（NI 白皮書 <code>dztut-3037</code>）</span>
+            <span>09 / 18</span>
+          </div>
+        </section>
+
+        <!-- ==================== 單元二: SLIDE 10 (互動 3) ==================== -->
+        <section class="slide" data-title="單元二・01：歐姆定律與功率耗散（互動）" data-part="單元二">
+          <div class="slide-header">
+            <div class="header-left">
+              <div class="kicker unit2">UNIT 2 · 01 · OHM'S LAW &amp; POWER DISSIPATION</div>
+              <h2>歐姆定律與功率耗散（平方律效應）</h2>
+            </div>
+            <div class="header-right">
+              <span class="part-chip u2">單元二｜類比電路</span>
+              <div class="slide-num-badge">10 / 18</div>
+            </div>
+          </div>
+
+          <div class="slide-body" style="gap:16px;">
+            <div class="grid-2-uneven" style="align-items:stretch;">
+              <div class="card" style="background:#fff; gap:12px;">
+                <span class="pill pill-indigo">歐姆定律與功率公式</span>
+                <svg width="100%" viewBox="0 0 430 155" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="6" y="6" width="418" height="143" rx="12" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5"/>
+                  <circle cx="88" cy="78" r="28" fill="#eff6ff" stroke="#2563eb" stroke-width="3"/>
+                  <text x="88" y="72" text-anchor="middle" fill="#1d4ed8" font-size="16" font-weight="800">+</text>
+                  <text x="88" y="96" text-anchor="middle" fill="#64748b" font-size="16" font-weight="800">−</text>
+                  <text x="40" y="83" text-anchor="middle" fill="#1e3a8a" font-size="16" font-weight="800">V</text>
+                  <path d="M88 50 V26 H328 V48" stroke="#2563eb" stroke-width="3.5" stroke-linecap="round" class="current-flow"/>
+                  <path d="M328 108 V128 H88 V106" stroke="#2563eb" stroke-width="3.5" stroke-linecap="round" class="current-flow"/>
+                  <text x="208" y="21" text-anchor="middle" fill="#d97706" font-size="14" font-weight="800">電流 I →</text>
+                  <path d="M328 48 L318 56 L338 66 L318 76 L338 86 L318 96 L328 108" stroke="#0f172a" stroke-width="3.5" stroke-linejoin="round" fill="none"/>
+                  <text x="366" y="83" text-anchor="middle" fill="#0f172a" font-size="16" font-weight="800">R (Ω)</text>
+                </svg>
+
+                <div class="grid-2" style="gap:10px;">
+                  <div class="formula-box">V = I · R &nbsp;|&nbsp; I = V / R</div>
+                  <div class="formula-box" style="background:var(--rose-soft); border-color:var(--rose-border); color:#9f1239;">P = I·V = V² / R = I²·R</div>
+                </div>
+
+                <p style="font-size:14.2px;">
+                  <strong>經典計算範例：</strong><br />
+                  • 10 V 施加於 1 MΩ 電阻 → 電流為 <strong>10 μA</strong>。<br />
+                  • 10 V 施加於 10 Ω 電阻 → 耗散功率為 <strong>10 W</strong>（<span class="formula-inline">R = V² / P</span>）。
+                </p>
+              </div>
+
+              <div class="signal-sim" style="justify-content:space-between;">
+                <div>
+                  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <span class="pill" style="background:rgba(251,113,133,0.2); color:#fda4af;">🎛️ 動手體驗：數位化儀 50 Ω 輸入功率計算</span>
+                    <span style="font-family:var(--font-mono); font-size:13px; color:#94a3b8;">R = 50 Ω</span>
+                  </div>
+                  <p style="font-size:14px; color:#cbd5e1; line-height:1.55; margin-bottom:14px;">
+                    依據平方律效應（<code style="color:#fbbf24;">P = V² / R</code>），只要將輸入電壓加倍，數位化儀輸入負載所需耗散的功率就會暴增為 <strong>4 倍</strong>！
+                  </p>
+                  <div class="slider-row">
+                    <span style="font-size:13.5px; font-weight:700; color:#7dd3fc; white-space:nowrap;">輸入電壓 V</span>
+                    <input id="pwrVoltSlider" type="range" min="1" max="20" step="1" value="10" oninput="updatePowerSim(this.value)" />
+                    <span id="pwrVoltVal" style="font-family:var(--font-mono); font-size:20px; font-weight:800; min-width:60px; text-align:right; color:#fff;">10 V</span>
+                  </div>
+                </div>
+
+                <div class="signal-readouts cols-2">
+                  <div class="readout-card">
+                    <div class="readout-label">單通道耗散功率 (1 Ch)</div>
+                    <div id="pwr1Ch" class="readout-val amber">2.00 W</div>
+                    <div class="readout-bar"><div id="barPwr1" class="readout-fill" style="width:25%; background:#fbbf24;"></div></div>
+                  </div>
+                  <div class="readout-card">
+                    <div class="readout-label">雙通道總耗散功率 (2 Ch)</div>
+                    <div id="pwr2Ch" class="readout-val rose">4.00 W</div>
+                    <div class="readout-bar"><div id="barPwr2" class="readout-fill" style="width:25%; background:#fb7185;"></div></div>
+                  </div>
+                </div>
+
+                <div id="pwrHint" style="font-size:13.5px; color:#fde68a; background:rgba(251,191,36,0.12); border:1px solid rgba(251,191,36,0.3); border-radius:10px; padding:10px 14px; line-height:1.5;">
+                  NI 教材標準範例：10 V 施加至 50 Ω 需耗散 2 W（雙通道 4 W）；試著拉到 20 V 觀察 4 倍跳升！
+                </div>
+              </div>
+            </div>
+
+            <div class="callout warn">
+              <span class="callout-label">實務重點</span>
+              <span>設計電路或使用量測儀器時，除了計算 <span class="formula-inline">V = I · R</span>，必須同時確認<strong>電阻額定功率與 50 Ω 輸入端電壓上限</strong>，避免元件過熱。</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== 單元二: SLIDE 11 ==================== -->
+        <section class="slide" data-title="單元二・02：分壓器、分流器與 DMM 量測" data-part="單元二">
+          <div class="slide-header">
+            <div class="header-left">
+              <div class="kicker unit2">UNIT 2 · 02 · VOLTAGE &amp; CURRENT DIVIDERS</div>
+              <h2>串聯分壓器、並聯分流器與 DMM 量測</h2>
+            </div>
+            <div class="header-right">
+              <span class="part-chip u2">單元二｜類比電路</span>
+              <div class="slide-num-badge">11 / 18</div>
+            </div>
+          </div>
+
+          <div class="slide-body" style="gap:16px;">
+            <div class="grid-2">
+              <div class="card card-blue" style="gap:10px;">
+                <span class="pill pill-blue">串聯配置：分壓器（Voltage Divider）</span>
+                <h3>共用相同電流 I，共同分配總電壓 E</h3>
+                <svg width="100%" viewBox="0 0 460 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="6" y="6" width="448" height="138" rx="12" fill="#ffffff" stroke="#bfdbfe" stroke-width="1.5"/>
+                  <circle cx="72" cy="74" r="24" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
+                  <text x="72" y="79" text-anchor="middle" fill="#1d4ed8" font-size="16" font-weight="800">E</text>
+                  <path d="M72 50 V28 H148" stroke="#2563eb" stroke-width="3"/>
+                  <path d="M148 28 L156 18 L168 38 L180 18 L192 38 L204 18 L212 28" stroke="#0f172a" stroke-width="3" fill="none"/>
+                  <text x="180" y="54" text-anchor="middle" fill="#0f172a" font-size="13" font-weight="800">R1 (壓降 E1)</text>
+                  <path d="M212 28 H326 V46" stroke="#2563eb" stroke-width="3"/>
+                  <path d="M326 46 L316 54 L336 66 L316 78 L336 90 L316 102 L326 110" stroke="#0f172a" stroke-width="3" fill="none"/>
+                  <text x="386" y="82" text-anchor="middle" fill="#1d4ed8" font-size="13" font-weight="800">R2 (輸出 E2)</text>
+                  <path d="M326 110 V126 H72 V98" stroke="#64748b" stroke-width="3"/>
+                  <circle cx="326" cy="28" r="5" fill="#2563eb"/>
+                </svg>
+                <div class="formula-box">Req = R1 + R2 &nbsp;|&nbsp; E2 = E · R2 / (R1 + R2)</div>
+              </div>
+
+              <div class="card card-emerald" style="gap:10px;">
+                <span class="pill pill-emerald">並聯配置：分流電路（Current Divider）</span>
+                <h3>承受相同電壓 E，依電阻分配電流</h3>
+                <svg width="100%" viewBox="0 0 460 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="6" y="6" width="448" height="138" rx="12" fill="#ffffff" stroke="#a7f3d0" stroke-width="1.5"/>
+                  <circle cx="72" cy="74" r="24" fill="#ecfdf5" stroke="#059669" stroke-width="2.5"/>
+                  <text x="72" y="79" text-anchor="middle" fill="#047857" font-size="16" font-weight="800">E</text>
+                  <path d="M72 50 V28 H346" stroke="#059669" stroke-width="3"/>
+                  <path d="M72 98 V124 H346" stroke="#64748b" stroke-width="3"/>
+                  <path d="M210 28 V46 L200 54 L220 66 L200 78 L220 90 L200 102 L210 110 V124" stroke="#0f172a" stroke-width="3" fill="none"/>
+                  <text x="166" y="80" text-anchor="middle" fill="#047857" font-size="13" font-weight="800">R1 (I1)</text>
+                  <path d="M346 28 V46 L336 54 L356 66 L336 78 L356 90 L336 102 L346 110 V124" stroke="#0f172a" stroke-width="3" fill="none"/>
+                  <text x="394" y="80" text-anchor="middle" fill="#047857" font-size="13" font-weight="800">R2 (I2)</text>
+                  <text x="140" y="21" text-anchor="middle" fill="#059669" font-size="12.5" font-weight="800">總電流 I = I1 + I2 →</text>
+                </svg>
+                <div class="formula-box">I = I1 + I2 &nbsp;|&nbsp; Req = (R1 · R2) / (R1 + R2)</div>
+              </div>
+            </div>
+
+            <div class="callout indigo">
+              <span class="callout-label">量測儀器｜DMM</span>
+              <span><strong>多功能數位電錶（DMM）</strong>是自動化測試系統最常見的平價量測裝置，內建訊號處理可提供：<strong>① 高解析度（位數）</strong>、<strong>② 多重量測（電壓／電流／電阻）</strong>、<strong>③ 隔離與高電壓功能</strong>。</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== 單元二: SLIDE 12 ==================== -->
+        <section class="slide" data-title="單元二・03：R/C/L 元件計算與阻抗／導納" data-part="單元二">
+          <div class="slide-header">
+            <div class="header-left">
+              <div class="kicker unit2">UNIT 2 · 03 · PASSIVE COMPONENTS &amp; IMPEDANCE</div>
+              <h2>電阻、電容、電感串並聯規則與阻抗／導納</h2>
+            </div>
+            <div class="header-right">
+              <span class="part-chip u2">單元二｜類比電路</span>
+              <div class="slide-num-badge">12 / 18</div>
+            </div>
+          </div>
+
+          <div class="slide-body" style="gap:14px;">
+            <table class="styled-table">
+              <thead>
+                <tr>
+                  <th style="width:14%;">元件</th>
+                  <th style="width:18%;">基本公式與單位</th>
+                  <th style="width:23%;">串聯等效</th>
+                  <th style="width:25%;">並聯等效</th>
+                  <th style="width:20%;">頻率升高時阻抗</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>電阻 (R)</strong></td>
+                  <td><span class="formula-inline">V = I·R</span><br />單位：歐姆 (Ω)</td>
+                  <td><span class="formula-inline">R1 + R2</span></td>
+                  <td><span class="formula-inline">(R1·R2) / (R1+R2)</span></td>
+                  <td>理論上維持不變</td>
+                </tr>
+                <tr>
+                  <td><strong>電容 (C)</strong></td>
+                  <td><span class="formula-inline">C = Q / V</span><br />單位：法拉 (F)</td>
+                  <td><span class="formula-inline">(C1·C2) / (C1+C2)</span><br /><span style="font-size:12px; color:var(--rose);">※與電阻相反</span></td>
+                  <td><span class="formula-inline">C1 + C2</span><br /><span style="font-size:12px; color:var(--emerald);">※極板面積等效加總</span></td>
+                  <td><strong style="color:var(--emerald);">降低 ↓</strong>（易通過高頻）</td>
+                </tr>
+                <tr>
+                  <td><strong>電感 (L)</strong></td>
+                  <td><span class="formula-inline">E = L·(dI/dt)</span><br />單位：亨利 (H)</td>
+                  <td><span class="formula-inline">L1 + L2 ± 2M</span><br /><span style="font-size:12px; color:var(--ink-muted);">M 為兩線圈互感</span></td>
+                  <td><span class="formula-inline">(L1·L2 - M²) / (L1+L2-2M)</span><br /><span style="font-size:12px; color:var(--ink-muted);">須計入互感影響</span></td>
+                  <td><strong style="color:var(--rose);">提高 ↑</strong>（阻擋高頻變化）</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="grid-2" style="gap:16px;">
+              <div class="card card-indigo" style="padding:15px 20px; gap:6px;">
+                <h3 style="font-size:17.5px;">阻抗 Impedance (Z) — 單位：Ω</h3>
+                <p style="font-size:14.5px;">交流電（AC）在特定頻率遭遇的總阻力，複數表示為 <span class="formula-inline">Z = R + jX</span>（實部電阻 R、虛部電抗 X），亦可用極座標（幅值與相位角）表示。</p>
+              </div>
+              <div class="card card-blue" style="padding:15px 20px; gap:6px;">
+                <h3 style="font-size:17.5px;">導納 Admittance (Y) — 單位：西門子 (S)</h3>
+                <p style="font-size:14.5px;">阻抗的倒數，複數表示為 <span class="formula-inline">Y = G + jB</span>（實部電導 G、虛部電納 B）。</p>
+              </div>
+            </div>
+
+            <div class="callout">
+              <span class="callout-label">勘誤註記</span>
+              <span>已依 Wiki 備註修正 NI 原文兩處筆誤：電感公式修正為 <strong>E = L · (dI/dt)</strong>，導納實部電導符號統一標示為 <strong>G</strong>。</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== 單元二: SLIDE 13 ==================== -->
+        <section class="slide" data-title="單元二・04：運算放大器（Op-Amp）三級模型" data-part="單元二">
+          <div class="slide-header">
+            <div class="header-left">
+              <div class="kicker unit2">UNIT 2 · 04 · OP-AMP ARCHITECTURE</div>
+              <h2>運算放大器（Op-Amp）三級模型與傳輸函式</h2>
+            </div>
+            <div class="header-right">
+              <span class="part-chip u2">單元二｜類比電路</span>
+              <div class="slide-num-badge">13 / 18</div>
+            </div>
+          </div>
+
+          <div class="slide-body" style="gap:18px;">
+            <div class="card" style="background:#fff; padding:18px 24px;">
+              <svg width="100%" viewBox="0 0 1080 185" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="92" y="12" width="876" height="162" rx="18" fill="#f8fafc" stroke="#6366f1" stroke-width="2" stroke-dasharray="8 6"/>
+                <text x="530" y="34" text-anchor="middle" fill="#4f46e5" font-size="13" font-weight="800" letter-spacing="1.5">SUBCIRCUIT: BASIC OP-AMP MODEL</text>
+
+                <circle cx="38" cy="100" r="24" fill="#eff6ff" stroke="#2563eb" stroke-width="2.5"/>
+                <text x="38" y="105" text-anchor="middle" fill="#1d4ed8" font-size="14" font-weight="800">Vs</text>
+                <path d="M62 100 H130" stroke="#2563eb" stroke-width="3.5"/>
+                <polygon points="134,100 124,94 124,106" fill="#2563eb"/>
+
+                <rect x="136" y="54" width="232" height="94" rx="14" fill="#eff6ff" stroke="#3b82f6" stroke-width="2.5"/>
+                <text x="252" y="82" text-anchor="middle" fill="#1d4ed8" font-size="13" font-weight="800">STAGE 1</text>
+                <text x="252" y="107" text-anchor="middle" fill="#0f172a" font-size="18" font-weight="800">差動放大器</text>
+                <text x="252" y="130" text-anchor="middle" fill="#475569" font-size="13">Diff Amp（輸入電阻 RIN）</text>
+
+                <path d="M368 100 H414" stroke="#4f46e5" stroke-width="3.5"/>
+                <polygon points="418,100 408,94 408,106" fill="#4f46e5"/>
+
+                <rect x="420" y="54" width="246" height="94" rx="14" fill="#eef2ff" stroke="#6366f1" stroke-width="2.5"/>
+                <text x="543" y="82" text-anchor="middle" fill="#4338ca" font-size="13" font-weight="800">STAGE 2</text>
+                <text x="543" y="107" text-anchor="middle" fill="#0f172a" font-size="18" font-weight="800">增益與頻率響應</text>
+                <text x="543" y="130" text-anchor="middle" fill="#475569" font-size="13">Gain &amp; 1st Pole (RP1, CP1)</text>
+
+                <path d="M666 100 H712" stroke="#059669" stroke-width="3.5"/>
+                <polygon points="716,100 706,94 706,106" fill="#059669"/>
+
+                <rect x="718" y="54" width="218" height="94" rx="14" fill="#ecfdf5" stroke="#10b981" stroke-width="2.5"/>
+                <text x="827" y="82" text-anchor="middle" fill="#047857" font-size="13" font-weight="800">STAGE 3</text>
+                <text x="827" y="107" text-anchor="middle" fill="#0f172a" font-size="18" font-weight="800">輸出緩衝區</text>
+                <text x="827" y="130" text-anchor="middle" fill="#475569" font-size="13">Output Buffer（輸出電阻 ROUT）</text>
+
+                <path d="M936 100 H1004" stroke="#059669" stroke-width="3.5"/>
+                <polygon points="1008,100 998,94 998,106" fill="#059669"/>
+                <rect x="1010" y="72" width="56" height="56" rx="12" fill="#fef3c7" stroke="#d97706" stroke-width="2.5"/>
+                <text x="1038" y="105" text-anchor="middle" fill="#b45309" font-size="14" font-weight="800">RL</text>
+              </svg>
+            </div>
+
+            <div class="grid-3">
+              <div class="card card-blue">
+                <h3>1. 差動放大器</h3>
+                <p>輸出與兩輸入端（＋／－）訊號間的<strong>差異成正比</strong>，決定輸入阻抗特性。</p>
+              </div>
+              <div class="card card-indigo">
+                <h3>2. 傳輸函式 H(s)</h3>
+                <p>以 <span class="formula-inline">H(s) = Vout(s) / Vin(s)</span> 描述頻域下的振幅響應與相位變化（s 為複頻率變數）。</p>
+              </div>
+              <div class="card card-emerald">
+                <h3>3. 輸出緩衝與 DAQ 應用</h3>
+                <p>提供驅動負載 RL 的能力；NI 提供的所有<strong>資料擷取（DAQ）</strong>產品皆內建放大器。</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== 單元二: SLIDE 14 (互動 4) ==================== -->
+        <section class="slide" data-title="單元二・05：反相與非反相放大器（互動）" data-part="單元二">
+          <div class="slide-header">
+            <div class="header-left">
+              <div class="kicker unit2">UNIT 2 · 05 · INVERTING VS NON-INVERTING</div>
+              <h2>反相放大器 vs 非反相放大器</h2>
+            </div>
+            <div class="header-right">
+              <span class="part-chip u2">單元二｜類比電路</span>
+              <div class="slide-num-badge">14 / 18</div>
+            </div>
+          </div>
+
+          <div class="slide-body" style="gap:14px;">
+            <div class="grid-2" style="gap:18px;">
+              <div class="card card-rose" style="padding:16px 20px; gap:8px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <span class="pill pill-rose">反相放大器（Inverting）</span>
+                  <span style="font-size:12px; color:var(--ink-muted);">NI 原文：逆變放大器</span>
+                </div>
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:14px;">
+                  <p style="font-size:14.2px;">
+                    輸入接至「−」端、「＋」端接地；利用<strong>虛擬接地（V1 = 0）</strong>推導，輸出極性反轉（正入負出）。
+                  </p>
+                  <div class="formula-box" style="min-width:168px; color:#be123c; border-color:var(--rose-border);">Gain = − R2 / R1</div>
+                </div>
+              </div>
+
+              <div class="card card-emerald" style="padding:16px 20px; gap:8px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <span class="pill pill-emerald">非反相放大器（Non-Inverting）</span>
+                  <span style="font-size:12px; color:var(--ink-muted);">NI 原文：非逆變放大器</span>
+                </div>
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:14px;">
+                  <p style="font-size:14.2px;">
+                    輸入接至「＋」端，透過 R1／R2 回授至「−」端；輸出<strong>保持同極性</strong>且增益恆 ≥ 1。
+                  </p>
+                  <div class="formula-box" style="min-width:180px; color:#047857; border-color:var(--emerald-border);">Gain = 1 + (R2 / R1)</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="signal-sim">
+              <div style="font-size:14px; font-weight:700; color:#a5b4fc;">🎛️ 動手體驗：調整相同電阻 R1、R2（假設輸入 Vs = +1.0 V），即時比較兩種組態</div>
+              <div class="grid-2" style="gap:20px;">
+                <div class="slider-row">
+                  <span style="font-size:13.5px; color:#cbd5e1; white-space:nowrap;">輸入電阻 R1</span>
+                  <input id="opR1" type="range" min="1" max="20" step="1" value="2" oninput="updateOpAmpSim()" />
+                  <span id="opR1Val" style="font-family:var(--font-mono); font-weight:800; min-width:54px; text-align:right;">2 kΩ</span>
+                </div>
+                <div class="slider-row">
+                  <span style="font-size:13.5px; color:#cbd5e1; white-space:nowrap;">回授電阻 R2</span>
+                  <input id="opR2" type="range" min="1" max="50" step="1" value="10" oninput="updateOpAmpSim()" />
+                  <span id="opR2Val" style="font-family:var(--font-mono); font-weight:800; min-width:58px; text-align:right;">10 kΩ</span>
+                </div>
+              </div>
+
+              <div class="signal-readouts cols-2">
+                <div class="readout-card">
+                  <div class="readout-label">反相放大器（−R2 / R1）輸出 Vo</div>
+                  <div id="invOut" class="readout-val rose">−5.00 V（增益 −5.00×）</div>
+                </div>
+                <div class="readout-card">
+                  <div class="readout-label">非反相放大器（1 + R2 / R1）輸出 Vo</div>
+                  <div id="nonInvOut" class="readout-val emerald">+6.00 V（增益 +6.00×）</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="callout tip">
+              <span class="callout-label">重點提醒</span>
+              <span>兩者最大差異在於<strong>極性是否反轉</strong>，以及非反相放大器公式多了一個「<strong>+ 1</strong>」（例如 R1=2 kΩ、R2=10 kΩ 時，分別為 −5 倍與 +6 倍）。</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== 單元二: SLIDE 15 (互動 5) ==================== -->
+        <section class="slide" data-title="單元二・06：RC 低通／高通濾波器與耦合（互動）" data-part="單元二">
+          <div class="slide-header">
+            <div class="header-left">
+              <div class="kicker unit2">UNIT 2 · 06 · RC FILTERS &amp; COUPLING</div>
+              <h2>類比 RC 濾波器與 AC／DC 耦合應用</h2>
+            </div>
+            <div class="header-right">
+              <span class="part-chip u2">單元二｜類比電路</span>
+              <div class="slide-num-badge">15 / 18</div>
+            </div>
+          </div>
+
+          <div class="slide-body" style="gap:14px;">
+            <div class="grid-2" style="gap:18px;">
+              <div class="card card-blue" style="padding:16px 20px; gap:8px;">
+                <span class="pill pill-blue">RC 低通濾波器（Low-Pass Filter）</span>
+                <h3 style="font-size:18.5px;">串 R 並 C（取 C 兩端）→ 過低頻與 DC、衰減高頻</h3>
+                <p style="font-size:14.2px;">
+                  當 <span class="formula-inline">Vout = 0.707 · Vin</span> 時稱為 <strong>−3 dB 截止頻率（半功率點）</strong>。<br />
+                  <strong style="color:#be123c;">⚠️ 實務現象：</strong>受測裝置（DUT）源電阻 R 與 DMM／數位化儀輸入電容 C 會自然形成<strong>非預期低通濾波</strong>，使高頻訊號衰減。
+                </p>
+              </div>
+
+              <div class="card card-emerald" style="padding:16px 20px; gap:8px;">
+                <span class="pill pill-emerald">RC 高通濾波器（High-Pass Filter）</span>
+                <h3 style="font-size:18.5px;">串 C 並 R（取 R 兩端）→ 擋低頻與 DC、過高頻</h3>
+                <p style="font-size:14.2px;">
+                  廣泛應用於數位化儀、DMM 與動態訊號擷取（DSA）輸入端：<br />
+                  • <strong>AC 耦合</strong>：輸入端串入電容，濾除直流偏壓。<br />
+                  • <strong>DC 耦合</strong>：將該電容短路，完整保留直流成分。
+                </p>
+              </div>
+            </div>
+
+            <div class="signal-sim">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-size:14px; font-weight:700; color:#7dd3fc;">🎛️ 動手體驗：單極 RC 濾波 −3 dB 截止頻率計算</span>
+                <span style="font-family:var(--font-mono); font-size:13px; color:#cbd5e1;">t = R·C &nbsp;|&nbsp; F3dB = 1 / (2π·R·C)</span>
+              </div>
+              <div class="grid-2" style="gap:20px;">
+                <div class="slider-row">
+                  <span style="font-size:13.5px; color:#cbd5e1; white-space:nowrap;">電阻 R</span>
+                  <input id="rcR" type="range" min="1" max="100" step="1" value="10" oninput="updateRCSim()" />
+                  <span id="rcRVal" style="font-family:var(--font-mono); font-weight:800; min-width:64px; text-align:right;">10 kΩ</span>
+                </div>
+                <div class="slider-row">
+                  <span style="font-size:13.5px; color:#cbd5e1; white-space:nowrap;">電容 C</span>
+                  <input id="rcC" type="range" min="1" max="100" step="1" value="10" oninput="updateRCSim()" />
+                  <span id="rcCVal" style="font-family:var(--font-mono); font-weight:800; min-width:64px; text-align:right;">10 nF</span>
+                </div>
+              </div>
+              <div class="signal-readouts cols-2">
+                <div class="readout-card">
+                  <div class="readout-label">時間常數 t = R · C</div>
+                  <div id="rcTau" class="readout-val amber">0.10 ms</div>
+                </div>
+                <div class="readout-card">
+                  <div class="readout-label">−3 dB 截止頻率 F3dB</div>
+                  <div id="rcFreq" class="readout-val">1.59 kHz</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== SLIDE 16: 全篇總複習 ==================== -->
+        <section class="slide" data-title="全篇總複習：單元一 × 單元二核心重點" data-part="總複習">
+          <div class="slide-header">
+            <div class="header-left">
+              <div class="kicker">COMPLETE REVIEW</div>
+              <h2>全篇總複習：單元一 × 單元二核心重點整理</h2>
+            </div>
+            <div class="header-right">
+              <span class="part-chip">考前總複習</span>
+              <div class="slide-num-badge">16 / 18</div>
+            </div>
+          </div>
+
+          <div class="slide-body" style="gap:14px;">
+            <table class="styled-table compact">
+              <thead>
+                <tr>
+                  <th style="width:12%;">單元</th>
+                  <th style="width:20%;">核心主題</th>
+                  <th style="width:68%;">必記觀念與關鍵公式</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong style="color:var(--blue);">單元一</strong></td>
+                  <td><strong>電壓、電流與迴路</strong></td>
+                  <td>正極＝高電位（＋）、負極／GND＝低電位（－）；有電位差才有直流電（高→低）；無負載直連會<strong>短路</strong>；<strong>無電位差</strong>或<strong>電路中斷</strong>均不會導通。</td>
+                </tr>
+                <tr>
+                  <td><strong style="color:var(--blue);">單元一</strong></td>
+                  <td><strong>數位與類比訊號</strong></td>
+                  <td>LinkIt 7697 數位訊號僅 <code>0/1</code>；類比輸出切 <strong>256 份（0~255）</strong>、類比輸入切 <strong>4096 份（0~4095）</strong>；兩種效果為數位模組（按鈕）、多種為類比模組（光感）。</td>
+                </tr>
+                <tr>
+                  <td><strong style="color:var(--indigo);">單元二</strong></td>
+                  <td><strong>歐姆定律與功率</strong></td>
+                  <td><span class="formula-inline">V = I·R</span>、<span class="formula-inline">P = I·V = V²/R = I²·R</span>；在 50 Ω 數位化儀輸入端具<strong>平方律效應</strong>（電壓 2 倍 → 功率 4 倍）。</td>
+                </tr>
+                <tr>
+                  <td><strong style="color:var(--indigo);">單元二</strong></td>
+                  <td><strong>分壓、分流與 R/C/L</strong></td>
+                  <td>串聯分壓 <span class="formula-inline">E2 = E·R2/(R1+R2)</span>；電容串並聯與電阻相反；頻率升高時<strong>電容阻抗降低、電感阻抗提高</strong>；複數阻抗 <span class="formula-inline">Z = R + jX</span>、導納 <span class="formula-inline">Y = G + jB</span>。</td>
+                </tr>
+                <tr>
+                  <td><strong style="color:var(--indigo);">單元二</strong></td>
+                  <td><strong>運算放大器 Op-Amp</strong></td>
+                  <td>三級模型（差動→增益與頻率響應 <span class="formula-inline">H(s)</span>→輸出緩衝）；反相增益 <span class="formula-inline">−R2/R1</span>、非反相增益 <span class="formula-inline">1 + R2/R1</span>。</td>
+                </tr>
+                <tr>
+                  <td><strong style="color:var(--indigo);">單元二</strong></td>
+                  <td><strong>RC 濾波與耦合</strong></td>
+                  <td>低通（過低頻、注意寄生電容）、高通（過高頻、AC／DC 耦合）；截止頻率 <span class="formula-inline">F3dB = 1/(2πRC)</span>（0.707 倍半功率點）。</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="callout tip">
+              <span class="callout-label">準備好了嗎？</span>
+              <span>確認以上兩大單元重點都熟悉後，請按下一頁進入<strong>綜合複習考題（共 6 題，涵蓋單元一與單元二全部核心觀念）</strong>！</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== SLIDE 17: 綜合複習考題（全部複習完後） ==================== -->
+        <section class="slide" data-title="綜合複習考題（涵蓋單元一與單元二）" data-part="綜合考題">
+          <div class="slide-header">
+            <div class="header-left">
+              <div class="kicker quiz">FINAL COMPREHENSIVE QUIZ</div>
+              <h2>綜合複習考題：檢核單元一與單元二學習成果</h2>
+            </div>
+            <div class="header-right">
+              <span class="part-chip quiz" id="quizScoreBadge">目前得分：0 / 6</span>
+              <div class="slide-num-badge">17 / 18</div>
+            </div>
+          </div>
+
+          <div class="slide-body">
+            <div class="quiz-shell">
+              <div class="quiz-topbar">
+                <div class="quiz-dots" id="quizDots"></div>
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <span id="quizUnitPill" class="pill pill-blue">單元一考題</span>
+                  <button class="quiz-btn secondary" style="padding:7px 14px; font-size:13.5px;" onclick="resetQuiz()">🔄 重新作答</button>
+                </div>
+              </div>
+
+              <div class="quiz-card">
+                <div class="quiz-question" id="quizQuestion"></div>
+                <div class="quiz-options" id="quizOptions"></div>
+                <div class="quiz-feedback" id="quizFeedback"></div>
+
+                <div class="quiz-nav-row">
+                  <button class="quiz-btn secondary" id="quizPrevBtn" onclick="stepQuiz(-1)">← 上一題</button>
+                  <span id="quizProgressText" style="font-size:14px; color:var(--ink-muted); font-weight:700;">第 1 題 / 共 6 題</span>
+                  <button class="quiz-btn" id="quizNextBtn" onclick="stepQuiz(1)">下一題 →</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== SLIDE 18: 結語與來源 ==================== -->
+        <section class="slide slide-closing" data-title="結語與 Wiki 知識來源" data-part="結語">
+          <div>
+            <div class="cover-eyebrow" style="margin-bottom:20px;">✨ SUMMARY &amp; WIKI REFERENCES</div>
+            <h2 style="font-size:42px; font-weight:800; line-height:1.25; margin-bottom:18px;">
+              從基本電位直覺到類比電路分析，<br />打通電學基礎的完整脈絡
+            </h2>
+            <p style="font-size:19px; color:#cbd5e1; line-height:1.7; max-width:900px;">
+              透過<strong>單元一</strong>的水力類比、安全除錯與數位／類比訊號概念建立直覺，再結合<strong>單元二</strong>的歐姆定律、RLC 元件、運算放大器與 RC 濾波器，即具備閱讀電路圖、安全操作開發板與理解量測儀器的完整基礎。
+            </p>
+          </div>
+
+          <div class="closing-box">
+            <div style="font-size:13.5px; font-weight:700; color:#7dd3fc; letter-spacing:0.08em; margin-bottom:10px;">WIKI 知識來源與勘誤說明</div>
+            <ul style="list-style:none; display:flex; flex-direction:column; gap:9px; font-size:14.5px; color:#e2e8f0; line-height:1.58;">
+              <li>• <strong>單元一｜<code>wiki/concepts/basic-electricity.md</code></strong>：《LinkIt 7697 與物聯網應用 — 0. 初次使用：基礎電學觀念》（邱文盛老師、S4A 教師社群、聯發科技教育基金會、均一教育平台 Junyi Academy，CC BY-SA 4.0）</li>
+              <li>• <strong>單元二｜<code>wiki/concepts/basic-analog-circuits.md</code></strong>：《類比電路：歐姆定律與基本概念》（NI National Instruments Corp. 白皮書 <code>dztut-3037</code>，更新日期 2026-09-10；已修正電感公式 <code>E = L · dI/dt</code> 與電導符號 <code>G</code>，並對照台灣慣用譯名「反相／非反相放大器」）</li>
+            </ul>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; font-size:14px; color:#94a3b8;">
+            <span>《電學基礎》整合簡報（共 18 頁 · 5 個互動模擬器 ＋ 6 題綜合考題）</span>
+            <span>按 Ctrl + P 可直接匯出為 PDF 講義</span>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Bottom Floating Controls -->
+  <nav class="controls-bar" aria-label="投影片控制列">
+    <button class="ctrl-btn" id="prevBtn" onclick="changeSlide(-1)">← 上一頁</button>
+    <span class="page-counter" id="pageCounter">01 / 18</span>
+    <button class="ctrl-btn" id="nextBtn" onclick="changeSlide(1)">下一頁 →</button>
+    <button class="ctrl-btn" onclick="toggleOverview()">📑 目錄</button>
+    <button class="ctrl-btn" onclick="toggleFullscreen()">⛶ 全螢幕</button>
+  </nav>
+
+  <!-- Slide Directory Modal -->
+  <div class="overview-modal" id="overviewModal" onclick="if(event.target===this) toggleOverview()">
+    <div class="overview-panel">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3 style="font-size:20px; font-weight:800;">📑 投影片目錄（點擊快速跳轉）</h3>
+        <button class="ctrl-btn" onclick="toggleOverview()">✕ 關閉</button>
+      </div>
+      <div class="overview-grid" id="overviewGrid"></div>
+    </div>
+  </div>
+
+  <script>
+    const slides = Array.from(document.querySelectorAll('.slide'));
+    const deck = document.getElementById('deck');
+    const pageCounter = document.getElementById('pageCounter');
+    const progressBar = document.getElementById('progressBar');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const overviewModal = document.getElementById('overviewModal');
+    const overviewGrid = document.getElementById('overviewGrid');
+    let current = 0;
+
+    function scaleDeck() {
+      const vw = window.innerWidth - 48;
+      const vh = window.innerHeight - 92;
+      const scale = Math.min(vw / 1280, vh / 720, 1.15);
+      deck.style.transform = `scale(${Math.max(scale, 0.25)})`;
+    }
+    window.addEventListener('resize', scaleDeck);
+    scaleDeck();
+
+    function renderOverview() {
+      overviewGrid.innerHTML = '';
+      slides.forEach((slide, idx) => {
+        const btn = document.createElement('button');
+        btn.className = 'overview-item' + (idx === current ? ' current' : '');
+        btn.innerHTML = `
+          <span class="overview-idx">${String(idx + 1).padStart(2, '0')}</span>
+          <span>${slide.dataset.title}</span>
+          <span class="overview-part">${slide.dataset.part || ''}</span>
+        `;
+        btn.onclick = () => {
+          goToSlide(idx);
+          toggleOverview();
+        };
+        overviewGrid.appendChild(btn);
+      });
+    }
+
+    function goToSlide(index) {
+      if (index < 0 || index >= slides.length) return;
+      slides.forEach((s, i) => {
+        s.classList.remove('active', 'prev');
+        if (i === index) s.classList.add('active');
+        else if (i < index) s.classList.add('prev');
+      });
+      current = index;
+      const numStr = String(current + 1).padStart(2, '0');
+      const totalStr = String(slides.length).padStart(2, '0');
+      pageCounter.textContent = `${numStr} / ${totalStr}`;
+      progressBar.style.width = `${((current + 1) / slides.length) * 100}%`;
+      prevBtn.disabled = current === 0;
+      nextBtn.disabled = current === slides.length - 1;
+      renderOverview();
+    }
+
+    function changeSlide(delta) {
+      goToSlide(current + delta);
+    }
+
+    function toggleOverview() {
+      overviewModal.classList.toggle('open');
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT') return;
+      if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') {
+        e.preventDefault();
+        changeSlide(1);
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        e.preventDefault();
+        changeSlide(-1);
+      } else if (e.key === 'Home') {
+        goToSlide(0);
+      } else if (e.key === 'End') {
+        goToSlide(slides.length - 1);
+      } else if (e.key.toLowerCase() === 'g') {
+        toggleOverview();
+      } else if (e.key.toLowerCase() === 'f') {
+        toggleFullscreen();
+      } else if (e.key === 'Escape' && overviewModal.classList.contains('open')) {
+        toggleOverview();
+      }
+    });
+
+    /* Interactive 1 (Slide 5): Circuit Debugger */
+    function setCircuitMode(mode) {
+      const btnNormal = document.getElementById('btnNormal');
+      const btnNoDiff = document.getElementById('btnNoDiff');
+      const btnBroken = document.getElementById('btnBroken');
+      [btnNormal, btnNoDiff, btnBroken].forEach(b => b.className = 'tab-btn');
+
+      const wireTop = document.getElementById('wireTop');
+      const wireBottomLeft = document.getElementById('wireBottomLeft');
+      const wireBottomRight = document.getElementById('wireBottomRight');
+      const wireNoDiff = document.getElementById('wireNoDiff');
+      const cutMark = document.getElementById('cutMark');
+      const bulbGlow = document.getElementById('bulbGlow');
+      const bulbCore = document.getElementById('bulbCore');
+      const bulbText = document.getElementById('bulbText');
+      const statusBg = document.getElementById('statusBg');
+      const statusLabel = document.getElementById('statusLabel');
+      const diagBadge = document.getElementById('diagBadge');
+      const diagTitle = document.getElementById('diagTitle');
+      const diagDesc = document.getElementById('diagDesc');
+      const diagAnalogy = document.getElementById('diagAnalogy');
+
+      if (mode === 'normal') {
+        btnNormal.classList.add('active-ok');
+        wireTop.setAttribute('stroke', '#059669');
+        wireTop.classList.add('current-flow');
+        wireBottomLeft.style.display = '';
+        wireBottomRight.style.display = '';
+        wireBottomLeft.setAttribute('stroke', '#059669');
+        wireBottomRight.setAttribute('stroke', '#059669');
+        wireBottomLeft.classList.add('current-flow');
+        wireBottomRight.classList.add('current-flow');
+        wireNoDiff.style.display = 'none';
+        cutMark.style.display = 'none';
+        bulbGlow.style.display = '';
+        bulbCore.setAttribute('fill', '#fde047');
+        bulbCore.setAttribute('stroke', '#ca8a04');
+        bulbText.setAttribute('fill', '#713f12');
+        bulbText.textContent = '發光中';
+        statusBg.setAttribute('fill', '#ecfdf5');
+        statusBg.setAttribute('stroke', '#a7f3d0');
+        statusLabel.setAttribute('fill', '#047857');
+        statusLabel.textContent = '有電位差 ＋ 導體完整 ＝ 電流導通';
+        diagBadge.className = 'pill pill-emerald';
+        diagBadge.textContent = '診斷結果：正常運作';
+        diagTitle.textContent = '正負極透過設備形成完整迴路';
+        diagDesc.textContent = '導線分別連接正極（高電位）與負極（低電位），產生電位差且導體未中斷，電流順利從高電位流向低電位，點亮燈泡。';
+        diagAnalogy.textContent = '高水位與低水位之間有水管相通，水自然流動並推動水輪機。';
+      } else if (mode === 'nodiff') {
+        btnNoDiff.classList.add('active-err');
+        wireTop.setAttribute('stroke', '#94a3b8');
+        wireTop.classList.remove('current-flow');
+        wireBottomLeft.style.display = 'none';
+        wireBottomRight.style.display = 'none';
+        wireNoDiff.style.display = '';
+        cutMark.style.display = 'none';
+        bulbGlow.style.display = 'none';
+        bulbCore.setAttribute('fill', '#e2e8f0');
+        bulbCore.setAttribute('stroke', '#94a3b8');
+        bulbText.setAttribute('fill', '#475569');
+        bulbText.textContent = '不會亮';
+        statusBg.setAttribute('fill', '#fff1f2');
+        statusBg.setAttribute('stroke', '#fecdd3');
+        statusLabel.setAttribute('fill', '#be123c');
+        statusLabel.textContent = '兩端同接正極 → 沒有電位差，電不會流動';
+        diagBadge.className = 'pill pill-rose';
+        diagBadge.textContent = '故障原因 A：沒有電位差';
+        diagTitle.textContent = '導線兩端都接在同一個電位';
+        diagDesc.textContent = '無論兩端都接正極或都接負極，因為兩側電位相同、沒有電壓差，無法推動電流流動，因此設備不會運作。';
+        diagAnalogy.textContent = '兩座水槽的水位高度完全相同，即使有水管相連，水也不會流動。';
+      } else if (mode === 'broken') {
+        btnBroken.classList.add('active-err');
+        wireTop.setAttribute('stroke', '#94a3b8');
+        wireTop.classList.remove('current-flow');
+        wireBottomLeft.style.display = '';
+        wireBottomRight.style.display = '';
+        wireBottomLeft.setAttribute('stroke', '#94a3b8');
+        wireBottomRight.setAttribute('stroke', '#94a3b8');
+        wireBottomLeft.classList.remove('current-flow');
+        wireBottomRight.classList.remove('current-flow');
+        wireNoDiff.style.display = 'none';
+        cutMark.style.display = '';
+        bulbGlow.style.display = 'none';
+        bulbCore.setAttribute('fill', '#e2e8f0');
+        bulbCore.setAttribute('stroke', '#94a3b8');
+        bulbText.setAttribute('fill', '#475569');
+        bulbText.textContent = '不會亮';
+        statusBg.setAttribute('fill', '#fff1f2');
+        statusBg.setAttribute('stroke', '#fecdd3');
+        statusLabel.setAttribute('fill', '#be123c');
+        statusLabel.textContent = '電線中斷 → 正負極無導體相連，無法導通';
+        diagBadge.className = 'pill pill-rose';
+        diagBadge.textContent = '故障原因 B：電路中斷（斷路）';
+        diagTitle.textContent = '導體斷裂或接點鬆脫未接妥';
+        diagDesc.textContent = '雖然電池具有電位差，但正極與負極之間缺少連續的導體形成完整迴路，電流無法流通，燈泡不會發光。';
+        diagAnalogy.textContent = '兩座水槽即使一高一低，但之間沒有水管連接，水依然無法流過去。';
+      }
+    }
+
+    /* Interactive 2 (Slide 7): Signal Converter */
+    function updateSignalSim(vStr) {
+      const v = parseFloat(vStr);
+      const ratio = v / 5;
+      document.getElementById('voltDisplay').textContent = `${v.toFixed(2)} V`;
+      const digital = v >= 2.5 ? 1 : 0;
+      const analogOut = Math.round(ratio * 255);
+      const analogIn = Math.round(ratio * 4095);
+      document.getElementById('valDigital').textContent = digital === 1 ? '1 (高電位)' : '0 (低電位)';
+      document.getElementById('barDigital').style.width = `${digital * 100}%`;
+      document.getElementById('valAnalogOut').textContent = `${analogOut}`;
+      document.getElementById('barAnalogOut').style.width = `${ratio * 100}%`;
+      document.getElementById('valAnalogIn').textContent = `${analogIn}`;
+      document.getElementById('barAnalogIn').style.width = `${ratio * 100}%`;
+    }
+
+    /* Interactive 3 (Slide 10): Square-Law Power Dissipation */
+    function updatePowerSim(vStr) {
+      const v = parseFloat(vStr);
+      const p1 = (v * v) / 50;
+      const p2 = p1 * 2;
+      document.getElementById('pwrVoltVal').textContent = `${v} V`;
+      document.getElementById('pwr1Ch').textContent = `${p1.toFixed(2)} W`;
+      document.getElementById('pwr2Ch').textContent = `${p2.toFixed(2)} W`;
+      document.getElementById('barPwr1').style.width = `${Math.min((p1 / 8) * 100, 100)}%`;
+      document.getElementById('barPwr2').style.width = `${Math.min((p2 / 16) * 100, 100)}%`;
+
+      const hint = document.getElementById('pwrHint');
+      if (v >= 15) {
+        hint.textContent = `⚠️ 高功率警示！${v} V 在 50 Ω 雙通道下耗散達 ${p2.toFixed(2)} W，遠超一般儀器輸入安全範圍。`;
+      } else if (v === 10) {
+        hint.textContent = 'NI 教材標準範例：10 V 施加至 50 Ω 需耗散 2 W（雙通道 4 W）；試著拉到 20 V 觀察 4 倍跳升！';
+      } else {
+        hint.textContent = `目前輸入 ${v} V → 單通道耗散 ${p1.toFixed(2)} W；若電壓加倍至 ${v * 2} V，功率將變為 ${(p1 * 4).toFixed(2)} W（4 倍）。`;
+      }
+    }
+
+    /* Interactive 4 (Slide 14): Op-Amp Gain Comparator */
+    function updateOpAmpSim() {
+      const r1 = parseFloat(document.getElementById('opR1').value);
+      const r2 = parseFloat(document.getElementById('opR2').value);
+      document.getElementById('opR1Val').textContent = `${r1} kΩ`;
+      document.getElementById('opR2Val').textContent = `${r2} kΩ`;
+      const invGain = -(r2 / r1);
+      const nonInvGain = 1 + (r2 / r1);
+      document.getElementById('invOut').textContent = `${invGain.toFixed(2)} V（增益 ${invGain.toFixed(2)}×）`;
+      document.getElementById('nonInvOut').textContent = `+${nonInvGain.toFixed(2)} V（增益 +${nonInvGain.toFixed(2)}×）`;
+    }
+
+    /* Interactive 5 (Slide 15): RC Cutoff Calculator */
+    function updateRCSim() {
+      const rK = parseFloat(document.getElementById('rcR').value);
+      const cN = parseFloat(document.getElementById('rcC').value);
+      document.getElementById('rcRVal').textContent = `${rK} kΩ`;
+      document.getElementById('rcCVal').textContent = `${cN} nF`;
+
+      const r = rK * 1e3;
+      const c = cN * 1e-9;
+      const tau = r * c;
+      const f3db = 1 / (2 * Math.PI * tau);
+
+      const tauStr = tau >= 1e-3 ? `${(tau * 1e3).toFixed(2)} ms` : `${(tau * 1e6).toFixed(1)} μs`;
+      const freqStr = f3db >= 1000 ? `${(f3db / 1000).toFixed(2)} kHz` : `${f3db.toFixed(1)} Hz`;
+
+      document.getElementById('rcTau').textContent = tauStr;
+      document.getElementById('rcFreq').textContent = freqStr;
+    }
+
+    /* Final Comprehensive Quiz (Slide 17) */
+    const quizData = [
+      {
+        unit: '單元一｜基礎電學',
+        pillClass: 'pill pill-blue',
+        q: '1. 當燈泡的兩條導線「同時都接在電池的正極」時，燈泡不會發光，請問最主要的原因是什麼？',
+        options: [
+          '兩端電位相同、沒有電位差，無法推動電流流動',
+          '沒有連接負載設備，直接發生短路',
+          '導體的銅線無法讓直流電通過',
+          '電池自動切換為類比輸出模式'
+        ],
+        answer: 0,
+        explain: '解析（單元一・第 5 頁）：唯有高電位與低電位之間產生「電位差」，才會推動電流；兩端同接正極（或同接負極）如同兩水槽水位相同，水不會流動。'
+      },
+      {
+        unit: '單元一｜基礎電學',
+        pillClass: 'pill pill-blue',
+        q: '2. 若在電路中沒有串接任何負載設備，直接用銅線將電源的正極連向負極（GND），會造成什麼現象？',
+        options: [
+          '形成高通濾波器，只讓高頻通過',
+          '造成短路（Short Circuit），能量無處消耗而產生危險',
+          '電路自動斷路，完全不會有電流流動',
+          '電壓會自動減半以保護電池'
+        ],
+        answer: 1,
+        explain: '解析（單元一・第 4 頁）：若缺乏負載設備吸收能量，電流直接從高電位流向低電位會造成短路（Short Circuit），上電前務必檢查迴路中有無負載。'
+      },
+      {
+        unit: '單元一｜基礎電學',
+        pillClass: 'pill pill-blue',
+        q: '3. 使用 LinkIt 7697 搭配「光線感應模組」偵測多種環境亮度時，該模組屬於哪一類？其類比輸入的數值範圍為何？',
+        options: [
+          '數位模組；僅表示為 0 與 1',
+          '數位模組；切割為 0 ~ 255（256 份）',
+          '類比模組；細分為 0 ~ 4095（4096 份）',
+          '類比模組；僅表示為 0 與 1'
+        ],
+        answer: 2,
+        explain: '解析（單元一・第 7–8 頁）：具有「多種」效果的光線感應模組屬於類比模組；LinkIt 7697 的類比輸入會將高低電位細分為 4096 份（0 ~ 4095），而類比輸出為 256 份（0 ~ 255）。'
+      },
+      {
+        unit: '單元二｜類比電路',
+        pillClass: 'pill pill-indigo',
+        q: '4. 依據功率耗散公式 P = V² / R，若將施加在數位化儀 50 Ω 輸入端的電壓從 10 V 加倍為 20 V，單通道耗散功率會如何變化？',
+        options: [
+          '維持不變，仍為 2 W',
+          '變為 2 倍，從 2 W 增至 4 W',
+          '變為 4 倍，從 2 W 增至 8 W',
+          '減半為 1 W'
+        ],
+        answer: 2,
+        explain: '解析（單元二・第 10 頁）：在平方律效應（P = V² / R）下，電壓加倍會讓耗散功率增為 4 倍（10²/50 = 2 W → 20²/50 = 8 W），這是量測儀器輸入上限的關鍵考量。'
+      },
+      {
+        unit: '單元二｜類比電路',
+        pillClass: 'pill pill-indigo',
+        q: '5. 關於電容器（C）與電感器（L）在交流電路中的頻率特性，當訊號頻率升高時，兩者的阻抗會如何變化？',
+        options: [
+          '電容阻抗降低、電感阻抗提高',
+          '電容阻抗提高、電感阻抗降低',
+          '電容與電感的阻抗皆隨頻率升高而提高',
+          '兩者阻抗皆不受頻率影響'
+        ],
+        answer: 0,
+        explain: '解析（單元二・第 12 頁）：電容隨頻率升高而降低阻抗（較易通過高頻），電感則隨頻率升高而提高阻抗（阻擋高頻電流變化）。'
+      },
+      {
+        unit: '單元二｜類比電路',
+        pillClass: 'pill pill-indigo',
+        q: '6. 使用相同電阻 R1 = 2 kΩ、R2 = 10 kΩ 分別組成「反相放大器」與「非反相放大器」，兩者的閉迴路增益各為多少？',
+        options: [
+          '反相：+5 倍；非反相：−5 倍',
+          '反相：−5 倍；非反相：+6 倍',
+          '反相：−6 倍；非反相：+5 倍',
+          '反相：−0.2 倍；非反相：+1.2 倍'
+        ],
+        answer: 1,
+        explain: '解析（單元二・第 14 頁）：反相放大器增益為 −R2 / R1 = −10 / 2 = −5 倍（極性反轉）；非反相放大器增益為 1 + R2 / R1 = 1 + 5 = +6 倍（保持同極性）。'
+      }
+    ];
+
+    let quizIdx = 0;
+    let quizAnswers = new Array(quizData.length).fill(null);
+
+    function renderQuiz() {
+      const item = quizData[quizIdx];
+      const dotsEl = document.getElementById('quizDots');
+      const unitPill = document.getElementById('quizUnitPill');
+      const qEl = document.getElementById('quizQuestion');
+      const optsEl = document.getElementById('quizOptions');
+      const fbEl = document.getElementById('quizFeedback');
+      const scoreBadge = document.getElementById('quizScoreBadge');
+      const progText = document.getElementById('quizProgressText');
+
+      // Score
+      let correctCount = 0;
+      quizAnswers.forEach((ans, i) => {
+        if (ans === quizData[i].answer) correctCount++;
+      });
+      scoreBadge.textContent = `目前得分：${correctCount} / ${quizData.length}`;
+
+      // Dots
+      dotsEl.innerHTML = '';
+      quizData.forEach((_, i) => {
+        const d = document.createElement('button');
+        let cls = 'quiz-dot';
+        if (i === quizIdx) cls += ' active';
+        if (quizAnswers[i] !== null) {
+          cls += quizAnswers[i] === quizData[i].answer ? ' correct' : ' wrong';
+        }
+        d.className = cls;
+        d.textContent = `Q${i + 1}`;
+        d.onclick = () => {
+          quizIdx = i;
+          renderQuiz();
+        };
+        dotsEl.appendChild(d);
+      });
+
+      unitPill.className = item.pillClass;
+      unitPill.textContent = item.unit;
+      qEl.textContent = item.q;
+      progText.textContent = `第 ${quizIdx + 1} 題 / 共 ${quizData.length} 題`;
+
+      const chosen = quizAnswers[quizIdx];
+      const keys = ['A', 'B', 'C', 'D'];
+      optsEl.innerHTML = '';
+      item.options.forEach((optText, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'quiz-opt';
+        if (chosen !== null) {
+          btn.disabled = true;
+          if (i === item.answer) btn.classList.add('is-correct');
+          else if (i === chosen) btn.classList.add('is-wrong');
+        }
+        btn.innerHTML = `<span class="opt-key">${keys[i]}</span><span>${optText}</span>`;
+        btn.onclick = () => {
+          quizAnswers[quizIdx] = i;
+          renderQuiz();
+        };
+        optsEl.appendChild(btn);
+      });
+
+      if (chosen === null) {
+        fbEl.className = 'quiz-feedback';
+        fbEl.textContent = '';
+      } else if (chosen === item.answer) {
+        fbEl.className = 'quiz-feedback show-ok';
+        fbEl.textContent = `✅ 答對了！${item.explain}`;
+      } else {
+        fbEl.className = 'quiz-feedback show-err';
+        fbEl.textContent = `❌ 再想想！正確答案為 (${keys[item.answer]})。${item.explain}`;
+      }
+
+      document.getElementById('quizPrevBtn').disabled = quizIdx === 0;
+      document.getElementById('quizNextBtn').disabled = quizIdx === quizData.length - 1;
+    }
+
+    function stepQuiz(delta) {
+      const next = quizIdx + delta;
+      if (next >= 0 && next < quizData.length) {
+        quizIdx = next;
+        renderQuiz();
+      }
+    }
+
+    function resetQuiz() {
+      quizAnswers = new Array(quizData.length).fill(null);
+      quizIdx = 0;
+      renderQuiz();
+    }
+
+    goToSlide(0);
+    updateSignalSim(2.5);
+    updatePowerSim(10);
+    updateOpAmpSim();
+    updateRCSim();
+    renderQuiz();
+  </script>
+</body>
+</html>
